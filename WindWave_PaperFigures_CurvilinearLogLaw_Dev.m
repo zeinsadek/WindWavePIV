@@ -914,7 +914,7 @@ lw = 1.5;
 
 % Phase \Delta U^+ vs wave phase
 clc; close all
-figure('color', 'white', 'units', 'centimeters', 'position', [10,10,13,7]); %#ok<*NASGU>
+figure('color', 'white', 'units', 'centimeters', 'position', [10,10,12,5]); %#ok<*NASGU>
 tiledlayout(1,1,'padding', 'loose')
 ax = nexttile;
 hold on
@@ -968,15 +968,15 @@ for w = 1:length(waves)
 
     plot(1:5, tmp, 'linewidth', lw, 'color', wave_colors{w}, 'HandleVisibility', 'off')
 
-    % Shaded region
-    hFill = patch( ...
-    [1:5, fliplr(1:5)], ...
-    [tmp_max, fliplr(tmp_min)], ...
-    hex2rgb(wave_colors{w}), ...
-    'FaceAlpha', 0.15, ...        % transparency
-    'EdgeColor', 'none', ...      % no outline
-    'HandleVisibility', 'off');   % keep legend clean
-    uistack(hFill, 'bottom')
+    % % Shaded region
+    % hFill = patch( ...
+    % [1:5, fliplr(1:5)], ...
+    % [tmp_max, fliplr(tmp_min)], ...
+    % hex2rgb(wave_colors{w}), ...
+    % 'FaceAlpha', 0.15, ...        % transparency
+    % 'EdgeColor', 'none', ...      % no outline
+    % 'HandleVisibility', 'off');   % keep legend clean
+    % uistack(hFill, 'bottom')
 end
 
 % Mark were smooth wall is
@@ -985,8 +985,8 @@ yline(0, 'linestyle', '--', 'Label', 'Smooth Wall', 'interpreter', 'latex', ...
 
 % Plot representtive wave profile
 fake_x = 0:0.01:6;
-amplitude = 1.5;
-offset = -4;
+amplitude = 2;
+offset = -5;
 reference_wave = amplitude * cos(((2*pi) / 4) * (fake_x - 1)) + offset;
 plot(fake_x, reference_wave, 'color', 'black', 'linewidth', 1.5, 'HandleVisibility', 'off')
 scatter(1:5, [offset + amplitude, offset, offset - amplitude, offset, offset + amplitude], sz, 'filled', ...
@@ -1017,7 +1017,7 @@ leg.Layout.Tile = 'north';
 hold off
 xticks(1:4)
 xlim([0.5, 6])
-ylim([-7 18])
+ylim([-10 15])
 yticks(0:5:15)
 ylabel('$\overline{\left(\Delta U_{\xi}^+ \right)}_{u_{\infty}}$', 'interpreter', 'latex', 'fontsize', labelFontSize)
 xticks([1 2 3 4 5])

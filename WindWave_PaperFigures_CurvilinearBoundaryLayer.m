@@ -872,6 +872,280 @@ leg.IconColumnWidth = 19;
 
 
 
+%% 3 Panel plot of \delta^* / \delta, \theta / \delta and H
+
+
+clear h
+
+phase = 1;
+version = 'filtered';
+linestyles = {'-.', '--', '-'};
+lw = 1;
+alpha = 0.25;
+
+tickFontSize = 8;
+labelFontSize = 10;
+legendFontSize = 8;
+
+clc; close all; 
+ax = figure('color', 'white', 'units', 'centimeters', 'position', [10,10,13,5]);
+tile = tiledlayout(1,3, 'tilespacing', 'loose', 'padding', 'tight');
+
+
+
+%%% Collapse parameter: displacement / thickness
+offset = -0.027;
+scale = 5;
+
+% Plot displacement thickness
+h(1) = nexttile;
+set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
+hold on
+for s = 1:length(wind_speeds)
+    wind_speed = wind_speeds{s};
+
+    if ismember(wind_speed(end), {'4'})
+        u_inf = 2.4181;
+    elseif ismember(wind_speed(end), {'6'})
+        u_inf = 3.8709;
+    elseif ismember(wind_speed(end), {'8'})
+        u_inf = 5.4289;
+    end
+
+    for w = 1:length(waves)
+        wave = waves{w};
+        caze = strcat(wind_speed, '_WV', wave, '_AG0');
+
+        % Legend
+        if s == 3
+            vis = 'on';
+        else
+            vis = 'off';
+        end
+
+        wavelength = integral.(caze).wavelength; 
+        amplitude = integral.(caze).amplitude;
+        steepness = (2 * amplitude) / wavelength;
+        
+        label = sprintf('$\\lambda_{%s}, \\hspace{1mm} ak_{%s}$', wavelengths.(wave), steepnesses.(wave));
+        
+        thickness_data = integral.(caze)(phase).(version).('thickness');
+        displacement_data = integral.(caze)(phase).(version).('displacement');
+        collapse_parameter = displacement_data ./ thickness_data;
+
+        H(w) = plot((integral.(caze)(phase).x - mean(integral.(caze)(phase).wave.x, 'all', 'omitnan')) / integral.(caze)(1).wavelength, collapse_parameter, ...
+                    'color', wave_colors{w}, 'linewidth', lw, 'linestyle', linestyles{s}, ...
+                    'displayname', label, 'HandleVisibility', vis);
+
+        % Plot phase for reference
+        if wave == 'D' && s == 1
+            testX = (integral.(caze)(phase).wave.x  - mean(integral.(caze)(phase).wave.x, 'all', 'omitnan')) / integral.(caze)(1).wavelength;integral.(caze)(phase).wave.wave_profile;
+            testY = (scale * integral.(caze)(phase).wave.wave_profile) + offset;
+            extrapX = -1:0.001:1;
+            extrap_testY = interp1(testX, testY, extrapX, 'spline', 'extrap');
+            plot(extrapX, extrap_testY, ...
+                 'color', 'black', 'linewidth', lw, 'linestyle', '-', 'HandleVisibility', 'off');
+            tmpX = extrapX;
+            tmpY = extrap_testY;
+            X = [tmpX(:); flipud(tmpX(:))];
+            Y = [tmpY(:); (-1)*ones(size(tmpY(:)))];
+            
+            patch(X, Y, 'k', ...
+                  'FaceAlpha', alpha, ...
+                  'EdgeColor', 'none', ...
+                  'handlevisibility', 'off');
+        end
+    end
+end
+
+
+hold off
+vertLabel = '$\delta^* \mathbin{/} \delta$';
+xlabel(tile, '$\xi \mathbin{/} \lambda$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+ylabel(vertLabel, 'interpreter', 'latex', 'fontsize', labelFontSize)
+xticks(-1:1:1)
+yticks(0:0.1:0.4)
+ylim([-0.08, 0.3001])
+axis square
+
+
+
+% Legend
+leg = legend('interpreter', 'latex', 'box', 'off', 'fontsize', legendFontSize, 'orientation', 'horizontal');
+leg.Layout.Tile = 'north';
+leg.IconColumnWidth = 19;
+
+
+% set(gca, 'XTick', []); 
+
+
+
+
+
+%%% Momentum
+parameter = 'momentum';
+
+offset = -0.027;
+scale = 5;
+
+h(2) = nexttile;
+set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
+hold on
+for s = 1:length(wind_speeds)
+    wind_speed = wind_speeds{s};
+
+    if ismember(wind_speed(end), {'4'})
+        u_inf = 2.4181;
+    elseif ismember(wind_speed(end), {'6'})
+        u_inf = 3.8709;
+    elseif ismember(wind_speed(end), {'8'})
+        u_inf = 5.4289;
+    end
+
+    for w = 1:length(waves)
+        wave = waves{w};
+        caze = strcat(wind_speed, '_WV', wave, '_AG0');
+
+        wavelength = integral.(caze).wavelength; 
+        amplitude = integral.(caze).amplitude;
+        steepness = (2 * amplitude) / wavelength;
+        
+        label = sprintf('$\\lambda_{%s}, u_{\\infty} = %1.2f$', wavelengths.(wave), u_inf);
+
+        thickness_data = integral.(caze)(phase).(version).('thickness');
+        data = integral.(caze)(phase).(version).(parameter);
+        
+        data = data ./ thickness_data;
+        
+        H(w) = plot((integral.(caze)(phase).x - mean(integral.(caze)(phase).wave.x, 'all', 'omitnan')) / integral.(caze)(1).wavelength, data, ...
+                    'color', wave_colors{w}, 'linewidth', lw, 'linestyle', linestyles{s}, ...
+                    'displayname', label);
+
+        % Plot phase for reference
+        if wave == 'D' && s == 1
+            testX = (integral.(caze)(phase).wave.x  - mean(integral.(caze)(phase).wave.x, 'all', 'omitnan')) / integral.(caze)(1).wavelength;integral.(caze)(phase).wave.wave_profile;
+            testY = (scale * integral.(caze)(phase).wave.wave_profile) + offset;
+            extrapX = -1:0.001:1;
+            extrap_testY = interp1(testX, testY, extrapX, 'spline', 'extrap');
+            plot(extrapX, extrap_testY, ...
+                 'color', 'black', 'linewidth', lw, 'linestyle', '-', 'HandleVisibility', 'off');
+            tmpX = extrapX;
+            tmpY = extrap_testY;
+            X = [tmpX(:); flipud(tmpX(:))];
+            Y = [tmpY(:); (-1)*ones(size(tmpY(:)))];
+            
+            patch(X, Y, 'k', ...
+                  'FaceAlpha', alpha, ...
+                  'EdgeColor', 'none', ...
+                  'handlevisibility', 'off');
+        end
+    end
+end
+hold off
+
+
+vertLabel = '$\theta \mathbin{/} \delta$';
+ylim([-0.08, 0.30001])
+ylabel(vertLabel, 'interpreter', 'latex', 'fontsize', labelFontSize)
+yticks(0:0.1:0.4)
+axis square
+
+% set(gca, 'XTick', []); 
+
+
+
+
+%%% Shape 
+parameter = 'shape';
+
+
+scale = 10;
+offset = 0.95;
+
+% Plot displacement thickness
+h(3) = nexttile;
+set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
+hold on
+for s = 1:length(wind_speeds)
+    wind_speed = wind_speeds{s};
+
+    if ismember(wind_speed(end), {'4'})
+        u_inf = 2.4181;
+    elseif ismember(wind_speed(end), {'6'})
+        u_inf = 3.8709;
+    elseif ismember(wind_speed(end), {'8'})
+        u_inf = 5.4289;
+    end
+
+    for w = 1:length(waves)
+        wave = waves{w};
+        caze = strcat(wind_speed, '_WV', wave, '_AG0');
+
+        wavelength = integral.(caze).wavelength; 
+        amplitude = integral.(caze).amplitude;
+        steepness = (2 * amplitude) / wavelength;
+        
+        label = sprintf('$\\lambda_{%s}, u_{\\infty} = %1.2f$', wavelengths.(wave), u_inf);
+        
+        data = integral.(caze)(phase).(version).(parameter);
+        H(w) = plot((integral.(caze)(phase).x - mean(integral.(caze)(phase).wave.x, 'all', 'omitnan')) / integral.(caze)(1).wavelength, data, ...
+                    'color', wave_colors{w}, 'linewidth', lw, 'linestyle', linestyles{s}, ...
+                    'displayname', label);
+
+        % Plot phase for reference
+        if wave == 'D' && s == 1
+            testX = (integral.(caze)(phase).wave.x  - mean(integral.(caze)(phase).wave.x, 'all', 'omitnan')) / integral.(caze)(1).wavelength;integral.(caze)(phase).wave.wave_profile;
+            testY = (scale * integral.(caze)(phase).wave.wave_profile) + offset;
+            extrapX = -1:0.001:1;
+            extrap_testY = interp1(testX, testY, extrapX, 'spline', 'extrap');
+            plot(extrapX, extrap_testY, ...
+                 'color', 'black', 'linewidth', lw, 'linestyle', '-', 'HandleVisibility', 'off');
+            tmpX = extrapX;
+            tmpY = extrap_testY;
+            X = [tmpX(:); flipud(tmpX(:))];
+            Y = [tmpY(:); (-1)*ones(size(tmpY(:)))];
+            
+            patch(X, Y, 'k', ...
+                  'FaceAlpha', alpha, ...
+                  'EdgeColor', 'none', ...
+                  'handlevisibility', 'off');
+        end
+    end
+end
+hold off
+vertLabel = '$H$';
+ylim([0.84, 1.6])
+
+
+% xlabel('$\xi / \lambda$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+ylabel(vertLabel, 'interpreter', 'latex', 'fontsize', labelFontSize)
+xticks(-1:1:1)
+yticks(1:0.2:1.8)
+axis square
+
+addPanelLabels(h, {'a', 'b', 'c'}, 'Offset', [-0.3, 1.18])
+
+
+
+
+
+
+% Save figure
+% pause(3)
+% figure_name = strcat('BoundaryLayer_Curvilinear_Displacement_Momentum_Shape_Collapse_Phase', num2str(phase), '_New.pdf');
+% exportgraphics(tile, fullfile(figure_folder, 'BoundaryLayer', figure_name), 'Resolution', 300, 'Resolution', 600, 'ContentType', 'image');
+% close all
+% fprintf('Generated figure: %s\n\n', figure_name)
+
+
+
+
+
+
+
+
+
+
 
 %% Functions
 

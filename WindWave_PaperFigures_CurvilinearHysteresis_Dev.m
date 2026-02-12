@@ -1448,8 +1448,6 @@ end
 tickFontSize = 8;
 labelFontSize = 10;
 legendFontSize = 8;
-% titleFontSize = 18;
-% annotationFontSize = 9;
 
 clc; close all
 wind_speed_colors = {'#0075F2', '#FF8C42', '#D30C7B'};
@@ -1803,6 +1801,372 @@ addPanelLabels(h, {'a', 'b', 'c'}, 'FontSize', 10, 'Offset', [0.05, 1])
 % figure_name = 'Hysteresis_RangesClosures_Combined.pdf';
 % exportgraphics(t, fullfile(figure_folder, 'Hysteresis',  figure_name), 'resolution', 600, 'ContentType', 'image')
 % close all
+
+
+
+
+
+%% Create 1x3 plot of ranges and Re_theta closure AGAINST STEEPNESS
+
+tickFontSize = 8;
+labelFontSize = 10;
+legendFontSize = 8;
+
+clc; close all
+wind_speed_colors = {'#0075F2', '#FF8C42', '#D30C7B'};
+
+% Range of Cf vs steepness
+ax = figure('color', 'white', 'units', 'centimeters', 'position', [10,10,13,5]);
+t = tiledlayout(1,3, 'padding', 'compact', 'TileSpacing', 'loose');
+
+sz = 10;
+linewidth = 1.2;
+
+h(1) = nexttile;
+hold on
+set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
+
+all_steepness = [];
+all_cf        = [];
+
+for s = 1:3
+    tmpX = nan(1, length(waves));
+    tmpY = nan(1, length(waves));
+
+    steepness_missing = NaN;
+
+    for w = 1:length(waves)
+
+        wave = waves{w};
+        wind_speed = wind_speeds{s};
+
+        if ismember(wind_speed(end), {'4'})
+            u_inf = 2.4181;
+        elseif ismember(wind_speed(end), {'6'})
+            u_inf = 3.8709;
+        elseif ismember(wind_speed(end), {'8'})
+            u_inf = 5.4289;
+        end
+
+        wavelength = wavelengths.(wave);
+        amplitude  = amplitudes.(wave);
+        steepness  = (2*pi*amplitude)/wavelength;
+
+        % ---- special missing point ----
+        if (s == 3) && (w == 4)
+            tmpX(w) = steepness;
+            tmpY(w) = NaN;
+            steepness_missing = steepness;
+            continue
+        end
+
+        % collect for global fit
+        all_steepness(end+1) = steepness;
+        all_cf(end+1)        = 1E3 * cf_ranges(s,w);
+
+        % scatter (original data)
+        vis = 'on';
+        if w > 1, vis = 'off'; end
+
+        label = sprintf('$u_{\\infty} = %1.2f$ m/s', u_inf);
+        scatter(steepness, 1E3 * cf_ranges(s,w), sz, 'filled', ...
+            'MarkerFaceColor', wind_speed_colors{s}, ...
+            'HandleVisibility', vis, ...
+            'DisplayName', label)
+
+        tmpX(w) = steepness;
+        tmpY(w) = 1E3* cf_ranges(s,w);
+    end
+
+    % ---- line plot with interpolation ----
+    [sortedX, sortIdx] = sort(tmpX, 'ascend');
+    sortedY = tmpY(sortIdx);
+
+    valid = ~isnan(sortedX);
+    sortedX = sortedX(valid);
+    sortedY = sortedY(valid);
+
+    yLine = fillmissing(sortedY, 'spline', ...
+                        'SamplePoints', sortedX);
+
+    plot(sortedX, yLine, ...
+        'Color', wind_speed_colors{s}, ...
+        'LineWidth', linewidth, ...
+        'HandleVisibility', 'off')
+
+    % ---- plot interpolated scatter point ----
+    if s == 3 && ~isnan(steepness_missing)
+        y_interp = interp1(sortedX, yLine, steepness_missing);
+
+        scatter(steepness_missing, y_interp, sz, ...
+            'MarkerFaceColor', wind_speed_colors{s}, ...
+            'MarkerEdgeColor', 'none', ...
+            'HandleVisibility', 'off');
+    end
+end
+
+
+% ---- global fit ----
+p    = polyfit(all_steepness, all_cf, 1);
+xfit = linspace(0.1, 0.4, 10);
+yfit = polyval(p, xfit);
+P = plot(xfit, yfit, 'color', 'black', 'LineStyle', '--', 'LineWidth', 0.5, ...
+         'DisplayName', 'Linear fit (all data)');
+uistack(P, 'bottom');
+
+
+% Show equation
+m = p(1);
+b = p(2);
+
+exp_m = floor(log10(abs(m)));
+mant_m  = m / 10^exp_m;
+exp_b = floor(log10(abs(b)));
+mant_b  = b / 10^exp_b;
+
+R = corrcoef(all_steepness, all_cf);
+R2 = R(1,2)^2;
+eqn = sprintf('$C_f = %.3f\\, ak + %.3f$\\quad \n($R^2 = %.2f$)', m, b, R2);
+
+% text(0.05, 0.95, eqn, ...
+%      'Units', 'normalized', ...
+%      'Interpreter', 'latex', ...
+%      'FontSize', annotationFontSize, ...
+%      'VerticalAlignment', 'top')
+
+hold off
+
+axis square
+xlabel('$ak$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+ylabel('$\mathrm{range} \left( C_f \right) \times 10^{3}$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+xlim([0.17, 0.32])
+ylim([0, 16])
+yticks(0:4:16)
+ax = gca;
+
+
+
+
+% Range of Re_{\theta} vs wavelength
+h(2) = nexttile;
+set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
+hold on
+for s = 1:3
+    for w = 1:length(waves)
+        wave = waves{w};
+        wind_speed = wind_speeds{s};
+    
+        if ismember(wind_speed(end), {'4'})
+            u_inf = 2.4181;
+        elseif ismember(wind_speed(end), {'6'})
+            u_inf = 3.8709;
+        elseif ismember(wind_speed(end), {'8'})
+            u_inf = 5.4289;
+        end
+
+        % Get wavelengths
+        wavelength = wavelengths.(wave);
+        amplitude = amplitudes.(wave);
+        steepness = (2 * pi * amplitude) / wavelength;
+
+        % Save wavelengths to plot a line
+        wvlenths(w) = steepness;
+
+        % Plot
+        if w == 100 
+            vis = 'on';
+        else
+            vis = 'off';
+        end
+
+        label = sprintf('$u_{\\infty} = %1.2f$ m/s', u_inf);
+        scatter(steepness, Re_theta_ranges(s,w), sz, 'filled', 'markerfacecolor', wind_speed_colors{s}, ...
+                'displayname', label, 'HandleVisibility', vis)
+    end
+    [sorted_wavelengths, sortIdx] = sort(wvlenths,'ascend');
+    plot(sorted_wavelengths, Re_theta_ranges(s, sortIdx), 'color', wind_speed_colors{s}, 'linewidth', linewidth, 'HandleVisibility', 'off')
+
+    x = sorted_wavelengths(:);
+    y = Re_theta_ranges(s, sortIdx).';   % make column
+    
+    % Fit y = b*x (through origin)
+    % b = (x' * y) / (x' * x);
+    p = polyfit(x,y,1);
+    m = p(1);
+    b = p(2);    
+    
+    % Smooth line for plotting
+    xf = linspace(min(x), max(x), 10).';
+    yf = m * xf + b;
+    
+    P = plot(xf, yf, '--', 'LineWidth', 0.5, 'Color', 'black', 'HandleVisibility','off');
+    uistack(P, 'bottom')
+    
+
+    % After computing b
+    exp10 = floor(log10(abs(m)));
+    % exp10 = 3;
+    mant  = m / 10^exp10;
+    
+    label = sprintf('$\\sim %.2f \\times 10^{%d}\\,\\lambda$', mant, exp10);
+    
+    % Place near mid-range of line
+    % text(max(xf), max(yf), label, ...
+    %      'Interpreter','latex', ...
+    %      'FontSize', annotationFontSize, ...
+    %      'Color', 'black', ...
+    %      'BackgroundColor','white', ...
+    %      'Margin', 2, ...
+    %      'HorizontalAlignment','left', ...
+    %      'VerticalAlignment','middle');
+
+
+end
+hold off
+
+axis square
+xlabel('$ak$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+ylabel('$\mathrm{range} (Re_\theta)$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+ylim([0, 6000])
+yticks(0:2000:6000)
+% xlim([0.1, 0.45])
+
+
+
+
+
+% Range of Re_{\theta} vs wavelength
+h(3) = nexttile();
+set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
+hold on
+for s = 1:3
+    for w = 1:length(waves)
+        wave = waves{w};
+        wind_speed = wind_speeds{s};
+    
+        if ismember(wind_speed(end), {'4'})
+            u_inf = 2.4181;
+        elseif ismember(wind_speed(end), {'6'})
+            u_inf = 3.8709;
+        elseif ismember(wind_speed(end), {'8'})
+            u_inf = 5.4289;
+        end
+
+        % Get wavelengths
+        wavelength = wavelengths.(wave);
+        amplitude = amplitudes.(wave);
+        steepness = (2 * pi * amplitude) / wavelength;
+
+        % Save wavelengths to plot a line
+        wvlenths(w) = steepness;
+
+        % Plot
+        if w == 100
+            vis = 'on';
+        else
+            vis = 'off';
+        end
+
+        label = sprintf('$u_{\\infty} = %1.2f$ m/s', u_inf);
+        scatter(steepness, Re_theta_closure(s,w), sz, 'filled', 'markerfacecolor', wind_speed_colors{s}, ...
+                'displayname', label, 'HandleVisibility', vis)
+    end
+    [sorted_wavelengths, sortIdx] = sort(wvlenths,'ascend');
+    plot(sorted_wavelengths, Re_theta_closure(s, sortIdx), 'color', wind_speed_colors{s}, 'linewidth', linewidth, 'HandleVisibility', 'off')
+
+
+    x = sorted_wavelengths(:);
+    y = Re_theta_closure(s, sortIdx).';   % make column
+    
+    % Fit y = b*x (through origin)
+    % b = (x' * y) / (x' * x);
+    p = polyfit(x,y,1);
+    m = p(1);
+    b = p(2);    
+    
+    % Smooth line for plotting
+    % xf = linspace(min(x), max(x), 200).';
+    xf = linspace(min(x), max(x), 10).';
+    yf = m * xf + b;
+    
+    P = plot(xf, yf, '--', 'LineWidth', 0.5, 'Color', 'black', 'HandleVisibility','off');
+    uistack(P, 'bottom')
+    
+    % fprintf('through-origin slope b = %g\n', b);
+
+    % After computing b
+    exp10 = floor(log10(abs(m)));
+    % exp10 = 3;
+    mant  = m / 10^exp10;
+    
+    label = sprintf('$\\sim %.2f \\times 10^{%d}\\,\\lambda$', mant, exp10);
+    
+    % Place near mid-range of line
+    % text(max(xf), max(yf), label, ...
+    %      'Interpreter','latex', ...
+    %      'FontSize', annotationFontSize, ...
+    %      'Color', 'black', ...
+    %      'BackgroundColor','white', ...
+    %      'Margin', 2, ...
+    %      'HorizontalAlignment','left', ...
+    %      'VerticalAlignment','middle');
+
+end
+
+% Make legend
+for s = 1:3
+    wind_speed = wind_speeds{s};
+    if ismember(wind_speed(end), {'4'})
+        u_inf = 2.4181;
+    elseif ismember(wind_speed(end), {'6'})
+        u_inf = 3.8709;
+    elseif ismember(wind_speed(end), {'8'})
+        u_inf = 5.4289;
+    end
+
+    label = sprintf('$u_{\\infty} = %1.2f$ m/s', u_inf);
+    plot(nan, nan, 'linewidth', linewidth, 'color', wind_speed_colors{s}, ...
+            'displayname', label, 'HandleVisibility', 'on')
+end
+
+hold off
+
+axis square
+xlabel('$ak$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+ylabel('$\Delta {Re}_{\theta}$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+ylim([0, 2000])
+% xlim([0.08, 0.4])
+leg = legend('Orientation', 'horizontal', 'box', 'off', ...
+             'fontsize', legendFontSize, 'interpreter', 'latex');
+leg.Layout.Tile = 'north';
+leg.IconColumnWidth = 19;
+linkaxes(h(2:3), 'x')
+
+% Add panel labels
+addPanelLabels(h, {'a', 'b', 'c'}, 'FontSize', 10, 'Offset', [0.05, 1])
+
+% addPanelLabels(ax, labels) adds (a),(b),... just OUTSIDE top-left of each axes.
+% ax     : array of axes handles (e.g., from tiledlayout / findall)
+% labels : cellstr like {'a','b','c'} or string array ["a" "b" "c"]
+%
+% Optional name-value:
+% 'Offset'   : [dx dy] in normalized axes units (default [-0.10 1.02])
+% 'FontSize' : default 12
+% 'FontName' : default 'Times New Roman'
+
+
+% Save figure
+% pause(3)
+% figure_name = 'Hysteresis_RangesClosures_Combined.pdf';
+% exportgraphics(t, fullfile(figure_folder, 'Hysteresis',  figure_name), 'resolution', 600, 'ContentType', 'image')
+% close all
+
+
+
+
+
+
+
 
 
 
