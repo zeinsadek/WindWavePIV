@@ -85,7 +85,7 @@ phase_titles = {'$\varphi = 0$',...
 % Plot
 clc; close all
 totalFigure = figure('color', 'white', 'units', 'centimeters', 'position', [10, 10, 13, 6.0]);
-t = tiledlayout(2, 2, "TileSpacing", "tight", "Padding", "loose");
+t = tiledlayout(2, 2, "TileSpacing", "tight", "Padding", "tight");
 
 for p = 1:4
     
@@ -145,7 +145,10 @@ for p = 1:4
 
     if mod(p,2) == 0
         ax.YTickLabel = [];
-        ax.YAxis.Visible = 'off';
+    end
+
+    if p < 3
+        ax.XTickLabel = [];
     end
 
 end
@@ -160,10 +163,10 @@ xlabel(t, '$x$ [mm]', 'Interpreter', 'latex', 'FontSize', labelFontSize)
 
 
 % Save figure
-pause(3)
-fig_name = strcat(caze, '_PhaseAverageWaves.pdf');
-exportgraphics(totalFigure, fullfile(fig_folder, fig_name), 'Resolution', 600, 'ContentType', 'image')
-close all 
+% pause(3)
+% fig_name = strcat(caze, '_PhaseAverageWaves.pdf');
+% exportgraphics(totalFigure, fullfile(fig_folder, fig_name), 'Resolution', 600, 'ContentType', 'image')
+% close all 
 
 
 

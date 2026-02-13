@@ -694,7 +694,7 @@ for phase = 1:4
         % Plot
         label = sprintf('$\\lambda_{%s}, \\hspace{1mm} ak_{%s}$', wavelength_names.(wave), steepnesses_names.(wave));
         plot(y_plus, u_plus, 'linewidth', lw, 'color', wave_colors{w}, 'HandleVisibility', 'off')
-        scatter(y_plus, u_plus, sz, 'filled', 'HandleVisibility', 'on', 'MarkerFaceColor', wave_colors{w}, 'DisplayName', label)
+        scatter(y_plus, u_plus, sz, 'filled', 'HandleVisibility', 'off', 'MarkerFaceColor', wave_colors{w}, 'DisplayName', label)
         
         if phase > 1
             set(gca, 'YTickLabel', [])
@@ -744,12 +744,29 @@ for phase = 1:4
     tmp.MinorGridAlpha = grid_trans;
 end
 
+% Legend
+hold on
+for w = 1:length(waves)
+    wave = waves{w};
+    label = sprintf('$\\lambda_{%s}, \\hspace{1mm} ak_{%s}$', wavelength_names.(wave), steepnesses_names.(wave));
+
+    hLeg = plot(nan, nan, 'o', ...
+    'MarkerFaceColor',  wave_colors{w}, ...
+    'MarkerEdgeColor','none', ...
+    'MarkerSize', 4, ...        % <-- CONTROL LEGEND SIZE HERE
+    'LineWidth', 1, ...
+    'LineStyle','none', ...
+    'DisplayName',label);
+end
+hold off
+
 
 linkaxes(h, 'xy')
 xlim([1E1, 1E4])
 ylim([0, 30])
 leg = legend('Orientation', 'horizontal', 'box', 'off', 'interpreter', 'latex', 'fontsize', legendFontSize);
 leg.Layout.Tile = 'north';
+leg.ItemTokenSize(1) = 10;
 
 % Add a centered xlabel across the top row
 annotation(ax, 'textbox', [0.32, 0.35, 0.44, 0.04], ...
@@ -816,6 +833,262 @@ addPanelLabelsFixed(ax, [h(1), ax2], {'a', 'b'}, 'FontSize', 10, 'OffsetPts', [-
 % figure_name = ['LogLaw_Curvilinear_', wind_speed, '_LogLawCombinedPlot_Unshifted.pdf'];
 % exportgraphics(ax, fullfile(figure_folder, 'LogLaw', figure_name), 'Resolution', 600, 'ContentType', 'image'); 
 % close all
+
+
+
+
+
+
+
+%% Curvilinear log law sorted per phase: UNSHIFTED + Rearranged phases
+
+% Font sizes
+tickFontSize = 8;
+labelFontSize = 10;
+legendFontSize = 8;
+titleFontSize = 10;
+
+% What to plot
+wind_speed = 'WT6';
+phase_names = {'$\varphi = 0$', '$\varphi = \lambda / 4$', '$\varphi = \lambda / 2$', '$\varphi = 3 \lambda / 4$'};
+wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+lw = 1;
+nu = 1.46E-5;
+sz = 2;
+
+grid_trans = 0.05;
+
+% Smooth wall reference
+smooth_y_plus = 0:10:1E4;
+smooth_u_plus = (1/karman_constant) * log(smooth_y_plus) + c_plus;
+
+
+% Move phases around
+reordered_phases = [1,4,3,2];
+
+% Plotting
+clc; close all;
+ax = figure('color', 'white', 'units', 'centimeters', 'position', [10,10,13,7.5]); %#ok<*NASGU>
+t = tiledlayout(2, 4, 'padding' ,'tight', 'TileSpacing', 'compact');
+
+% Make array to hold all Log-region bounds
+c = 1;
+tmp_wave_log_regions = nan(16, 2);
+
+% Loop through phases
+for p = 1:4
+
+    phase = reordered_phases(p);
+    % Start tile
+    h(p) = nexttile();
+    hold on
+    set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
+    title(phase_names{phase}, 'interpreter', 'latex', 'fontsize', titleFontSize)
+
+    % Smooth wall reference
+    plot(smooth_y_plus, smooth_u_plus, 'linestyle', '--', 'HandleVisibility', 'off', 'color', 'black', 'linewidth', 1)
+    
+    % Loop through waves
+    for w = 1:length(waves)
+        wave = waves{w};
+        caze = strcat(wind_speed, '_WV', wave, '_AG0');
+
+        % Get data
+        y = u_star.(caze)(phase).y;
+        u_profile = u_star.(caze)(phase).u_profile;
+        friction_velocity = u_star.(caze)(phase).raw;
+       
+        % Law of the wall
+        u_plus = u_profile / friction_velocity;
+        y_plus = (y * friction_velocity) / nu;
+
+
+        %%% NEW METHOD
+        % Find constant slope region (log region)
+        [bounds, ~] = find_constant_slope_region(y_plus, u_plus, ...
+                                                          'plateau_tol', 0.2, ...
+                                                          'smooth_window', 7);
+    
+        % Save bounds
+        tmp_wave_log_regions(c,:) = bounds;
+        wave_log_regions(phase).(caze) = bounds;
+    
+        % Compute \Delta U^+
+        in_region = (y_plus >= bounds(2)) & (y_plus <= bounds(1));
+        y_fit = y_plus(in_region);
+        u_fit = u_plus(in_region);
+        
+        % Smooth wall reference
+        u_smooth = (1/karman_constant) * log(y_fit) + c_plus;
+        
+        % Delta U+
+        deltaU = mean(u_smooth - u_fit, 'omitnan');
+        if strcmp(wave, 'B') && phase == 4
+            disp(deltaU)
+        end
+
+        % Save Delta U+
+        wave_DeltaUs(phase).(caze) = deltaU;
+
+        % Plot
+        label = sprintf('$\\lambda_{%s}, \\hspace{1mm} ak_{%s}$', wavelength_names.(wave), steepnesses_names.(wave));
+        plot(y_plus, u_plus, 'linewidth', lw, 'color', wave_colors{w}, 'HandleVisibility', 'off')
+        scatter(y_plus, u_plus, sz, 'filled', 'HandleVisibility', 'off', 'MarkerFaceColor', wave_colors{w}, 'DisplayName', label)
+        
+        if phase > 1
+            set(gca, 'YTickLabel', [])
+        end
+        axis square
+
+        % Increment case counter
+        c = c + 1;
+    end
+
+    % No-Wave
+    no_wave_caze = strcat(wind_speed, '_WV0_AGP');
+    y = u_star.(no_wave_caze).y;
+    u_profile = u_star.(no_wave_caze).u_profile;
+    friction_velocity = u_star.(no_wave_caze).raw;
+
+    % Law of the wall
+    u_plus = u_profile / friction_velocity;
+    y_plus = (y * friction_velocity) / nu;
+
+    %%% NEW METHOD
+    % Find constant slope region (log region)
+    [bounds, slope_info] = find_constant_slope_region(y_plus, u_plus, ...
+                                                      'plateau_tol', 0.2, ...
+                                                      'smooth_window', 7);
+
+    % Compute \Delta U^+
+    in_region = (y_plus >= bounds(2)) & (y_plus <= bounds(1));
+    y_fit = y_plus(in_region);
+    u_fit = u_plus(in_region);
+    
+    % Smooth wall reference
+    u_smooth = (1/karman_constant) * log(y_fit) + c_plus;
+    
+    % Delta U+
+    deltaU = mean(u_smooth - u_fit, 'omitnan');
+
+    if p == 1
+        ylabel('$\langle u_{\xi} \rangle^+$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+    end
+
+    hold off
+    xscale('log')
+    grid on
+    tmp = gca;
+    tmp.GridAlpha = grid_trans;
+    tmp.MinorGridAlpha = grid_trans;
+end
+
+% Legend
+hold on
+for w = 1:length(waves)
+    wave = waves{w};
+    label = sprintf('$\\lambda_{%s}, \\hspace{1mm} ak_{%s}$', wavelength_names.(wave), steepnesses_names.(wave));
+
+    hLeg = plot(nan, nan, 'o', ...
+    'MarkerFaceColor',  wave_colors{w}, ...
+    'MarkerEdgeColor','none', ...
+    'MarkerSize', 4, ...        % <-- CONTROL LEGEND SIZE HERE
+    'LineWidth', 1, ...
+    'LineStyle','none', ...
+    'DisplayName',label);
+end
+hold off
+
+
+linkaxes(h, 'xy')
+xlim([1E1, 1E4])
+ylim([0, 30])
+leg = legend('Orientation', 'horizontal', 'box', 'off', 'interpreter', 'latex', 'fontsize', legendFontSize);
+leg.Layout.Tile = 'north';
+leg.ItemTokenSize(1) = 10;
+
+% Add a centered xlabel across the top row
+annotation(ax, 'textbox', [0.32, 0.35, 0.44, 0.04], ...
+           'String', '$\zeta^+$', ...
+           'Interpreter', 'latex', ...
+           'FontSize', labelFontSize, ...
+           'HorizontalAlignment', 'center', ...
+           'VerticalAlignment', 'bottom', ...
+           'EdgeColor', 'none');
+
+
+% Print useful metrics
+clc;
+fprintf('Avg Log Region Bounds = %3.2f - %4.2f\n', fliplr(mean(tmp_wave_log_regions, 1, 'omitnan')))
+fprintf('Min Bound = %3.2f\nMax bound = %4.2f\n', min(tmp_wave_log_regions, [], 'all'), max(tmp_wave_log_regions, [], 'all'))
+
+
+
+%%% Curvilinear local u* bar chart
+friction_velocity_bar_chart = nan(4,length(waves));
+
+for p = 1:4
+    phase = reordered_phases(p);
+    hold on
+    title(phase_names{phase})
+    
+    for w = 1:length(waves)
+        wave = waves{w};
+        caze = strcat(wind_speed, '_WV', wave, '_AG0');
+
+        % Get data and save to array
+        friction_velocity_bar_chart(p, w) = u_star.(caze)(phase).raw;
+    end
+end
+
+% No-Wave
+no_wave_caze = strcat(wind_speed, '_WV0_AGP');
+no_wave_friction_velocity = u_star.(no_wave_caze).raw;
+ax2 = nexttile([1,4]);
+hold on
+b = bar(phase_names(reordered_phases), friction_velocity_bar_chart);
+
+yline(no_wave_friction_velocity, '-', 'No Wave', 'Interpreter', 'latex', 'linewidth', 1, 'fontsize', 6)
+yticks(0:0.05:0.5)
+
+% Set bar colors
+for k = 1:4
+    b(k).FaceColor = wave_colors{k};
+    b(k).EdgeColor = 'none';
+end
+
+% Plot a wave line?
+% wave_x = 0.5:0.1:5;
+% P = plot(wave_x, 0.04 * cos((2*pi/4) * (wave_x - 1)) + 0.073, 'color', 'black', 'linewidth', 2);
+% P.Color(4) = 0.5;
+hold off
+
+tmp = gca;
+
+cats = tmp.XAxis.Categories;          % the category labels on the x-axis
+tmp.XLim = categorical(cats([1 4]));  % show categories 1 through 4
+
+tmp.XRuler.TickLength = [0 0];   % removes x-axis tick marks only
+tmp.TickLabelInterpreter = 'latex';
+tmp.XAxis.FontSize = labelFontSize;
+tmp.YAxis.FontSize = tickFontSize;
+tmp.XAxis.TickLabelInterpreter = 'latex';
+ylabel('$u_{\xi}^*$ [m/s]', 'interpreter', 'latex', 'fontsize', labelFontSize)
+box off
+ylim([0, 0.40])
+yticks(0:0.1:0.4)
+
+% Add a,b labels
+addPanelLabelsFixed(ax, [h(1), ax2], {'a', 'b'}, 'FontSize', 10, 'OffsetPts', [-30,0])
+
+
+% Save figure
+% pause(3)
+% figure_name = ['LogLaw_Curvilinear_', wind_speed, '_LogLawCombinedPlot_Unshifted_Rearranged.pdf'];
+% exportgraphics(ax, fullfile(figure_folder, 'LogLaw', figure_name), 'Resolution', 600, 'ContentType', 'image'); 
+% close all
+
+
 
 
 
@@ -914,7 +1187,7 @@ lw = 1.5;
 
 % Phase \Delta U^+ vs wave phase
 clc; close all
-figure('color', 'white', 'units', 'centimeters', 'position', [10,10,12,5]); %#ok<*NASGU>
+figure('color', 'white', 'units', 'centimeters', 'position', [10,10,12,5.5]); %#ok<*NASGU>
 tiledlayout(1,1,'padding', 'loose')
 ax = nexttile;
 hold on
@@ -1006,13 +1279,21 @@ patch(X, Y, 'k', ...
 for w = 1:length(waves)
     wave = waves{w};
     label = sprintf('$\\lambda_{%s}, \\hspace{1mm} ak_{%s}$', wavelength_names.(wave), steepnesses_names.(wave));
-    plot(nan, nan, 'linewidth', lw, 'color', wave_colors{w}, ...
-         'DisplayName', label)
+    % plot(nan, nan, 'linewidth', lw, 'color', wave_colors{w}, ...
+    %      'DisplayName', label)
+    hLeg = plot(nan, nan, 'o', ...
+    'MarkerFaceColor',  wave_colors{w}, ...
+    'MarkerEdgeColor','none', ...
+    'MarkerSize', 4, ...        % <-- CONTROL LEGEND SIZE HERE
+    'LineWidth', 1, ...
+    'LineStyle','none', ...
+    'DisplayName',label);
 end
 
 leg = legend('interpreter', 'latex', 'box', 'off', 'orientation', 'horizontal', 'fontsize', legendFontSize);
-leg.IconColumnWidth = 19;
+% leg.IconColumnWidth = 19;
 leg.Layout.Tile = 'north';
+leg.ItemTokenSize(1) = 10;
 
 hold off
 xticks(1:4)
@@ -1023,8 +1304,8 @@ ylabel('$\overline{\left(\Delta U_{\xi}^+ \right)}_{u_{\infty}}$', 'interpreter'
 xticks([1 2 3 4 5])
 xticklabels([phase_names(reordered_phases), phase_names(1)])
 tmp = gca;
-tmp.FontSize = labelFontSize;
-set(tmp, 'TickLabelInterpreter', 'latex')
+tmp.FontSize = tickFontSize;
+set(tmp, 'TickLabelInterpreter', 'latex', 'fontsize', tickFontSize)
 
 
 

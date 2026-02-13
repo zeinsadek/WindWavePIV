@@ -363,6 +363,8 @@ phase_fit_colors = [0.5, 0.5, 0.5;    % Gray for phase 1
 
 clear h
 
+reordered_phases = [1,4,3,2];
+
 phase_labels = {'$\varphi = 0$', '$\varphi = \lambda / 4$', ...
                 '$\varphi = \lambda / 2$', '$\varphi = 3 \lambda / 4$'};
 
@@ -373,7 +375,7 @@ legendFontSize = 8;
 
 % Marker sizes
 fit_lw = 1;
-sz = 40;
+sz = 20;
 
 
 close all;
@@ -384,10 +386,11 @@ t = tiledlayout(1, 4, 'TileSpacing', 'compact', 'padding', 'compact');
 
 
 % Plot per-phase tiles
-for phase = 1:4    
+for p = 1:4    
 
-    h(phase) = nexttile;
-    set(h(phase), 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
+    phase = reordered_phases(p);
+    h(p) = nexttile;
+    set(h(p), 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
     hold on
     title(phase_labels{phase}, 'interpreter', 'latex', 'fontsize', labelFontSize)
     % Plot data points
@@ -417,35 +420,18 @@ for phase = 1:4
         end
     end
 
-    % if phase < 3
-    %     set(h(phase), 'xticklabel',[])
-    % end
-
     % if mod(phase, 2) == 0
-    if phase > 1
-        set(h(phase), 'yticklabel',[])
+    if p > 1
+        set(h(p), 'yticklabel',[])
     end
 
     % Fit line per-phase
-    P = plot(wave_age_fit, u_star_fit_phase(phase, :), '--', 'linewidth', fit_lw, 'color', 'black', 'handlevisibility', 'off');
+    P = plot(wave_age_fit, u_star_fit_phase(phase, :), '-', 'linewidth', fit_lw, 'color', 'black', 'handlevisibility', 'off');
     uistack(P, 'bottom')
-
-    % Plot combined fit line
-    % P = plot(wave_age_fit, u_star_fit_all, 'k-', 'linewidth', fit_lw, 'handlevisibility', 'off');
-    
-    % % Shade around the total power law from phase-fits
-    % upper_fit_bound = max(u_star_fit_phase, [], 1, 'omitnan');
-    % lower_fit_bound = min(u_star_fit_phase, [], 1, 'omitnan');
-    % PP = patch([wave_age_fit(:); flipud(wave_age_fit(:))], ...
-    %       [upper_fit_bound(:); flipud(lower_fit_bound(:))], ...
-    %       'k', ...
-    %       'FaceAlpha', 0.2, ...
-    %       'EdgeColor', 'none', ...
-    %       'handlevisibility', 'off');
 
 
     % Add legend
-    if phase == 4
+    if p == 4
         for w = 1:length(waves)
             wave = waves{w};
             label = sprintf('$\\lambda_{%s}, \\hspace{1mm} ak_{%s}$', wavelength_names.(wave), steepnesses.(wave));
@@ -477,6 +463,8 @@ ylabel(t, '$u_{\xi}^*  \mathbin{/} c$', 'interpreter', 'latex', 'fontsize', labe
 % Legend
 leg = legend('interpreter', 'latex', 'box', 'off', 'orientation', 'horizontal', 'fontsize', legendFontSize);
 leg.Layout.Tile = 'north';
+leg.ItemTokenSize(1) = 10;
+leg.IconColumnWidth = 19;
 
 % Add a,b,c,d,e panels
 % addPanelLabelsFixed(fig, h, {'a', 'b', 'c', 'd', 'e'}, 'FontSize', 10, 'OffsetPts', [-20,-4])

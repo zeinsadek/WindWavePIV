@@ -9,7 +9,7 @@ addpath('/Users/zeinsadek/Documents/MATLAB/colormaps/slanCM')
 clc; clear; close all;
 project_path = "/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV";
 means_path = fullfile(project_path, 'means');
-curvilinear_path = fullfile(project_path, 'curvilinear');
+curvilinear_path = fullfile(project_path, 'curvilinear_new');
 waves = {'A', 'B', 'C', 'D'};
 wind_speeds = {'WT4', 'WT6', 'WT8'};
 
@@ -389,7 +389,7 @@ clc; close all
 figure('color', 'white')
 
 hold on
-for phase = 2:2:4
+for phase = 1:2:3
     disp(phase)
 
     % Skin friction
@@ -438,6 +438,7 @@ hold off
 xlabel('Re_{\theta}')
 ylabel('Skin Friction')
 
+%% Stitching Phases 2+4
 
 
 %%% Stitching the two phases with offset and scaling
@@ -456,11 +457,7 @@ phase_4_cf_shift = phase_4_cf(1) - phase_2_cf(end);
 phase_4_cf_shifted = phase_4_cf - phase_4_cf_shift;
 
 
-%% Plot Profiles
-
 wave_transparency = 0.25;
-
-
 % Colors
 phase_2_color = '#FF8552';
 phase_4_color = '#78CAD2';
@@ -476,7 +473,7 @@ sz = 5;
 
 % Plotting
 clc; close all
-bigfig = figure('color', 'white', 'units', 'centimeters', 'position', [10,10,13,7]);
+ax = figure('color', 'white', 'units', 'centimeters', 'position', [10,10,13,7]);
 fig = tiledlayout(2,2,"TileSpacing",'tight', 'padding', 'tight');
 
 % C_f profiles
@@ -518,7 +515,7 @@ ylim([-1.5E-3, 0.02])
 yticks(0:5E-3:25E-3)
 xlim([0, 1])
 ax = gca;
-ax.XTickLabel = [];
+ax.XAxis.Visible = 'off';
 
 % Make y axis easier to read
 ax.YAxis.Exponent = -3;
@@ -736,19 +733,153 @@ fprintf('Cf shift and scaling\n')
 fprintf('Shift applied: %.4f\n', phase_4_cf_shift);
 
 
-% addPanelLabelsFixed(ax, {'a', 'b', 'c'}, 'FontSize', 8)
-addPanelLabelsFixed(bigfig, [ax1, ax2, ax3], {'a', 'b', 'c'}, 'Fontsize', 8, 'OffsetPts', [-25, -8])
-
-
-% Save figure
-% pause(3)
-% figure_name = 'HysteresisStitchExamples.pdf';
-% exportgraphics(t, fullfile(figure_folder, 'Hysteresis',  figure_name), 'resolution', 600, 'ContentType', 'image')
-% close all
 
 
 
 
+%% Stitching Phases 1+3
+
+
+%%% Stitching the two phases with offset and scaling
+% Data per phase
+phase_2_cf = hysteresis(1).cf;
+phase_2_Re_theta = hysteresis(1).Re_theta;
+
+phase_4_cf = hysteresis(3).cf;
+phase_4_Re_theta = hysteresis(3).Re_theta;
+
+% Compute shifts
+phase_4_Re_theta_shift = phase_4_Re_theta(1) - phase_2_Re_theta(end);
+phase_4_Re_theta_shifted = phase_4_Re_theta - phase_4_Re_theta_shift;
+
+phase_4_cf_shift = phase_4_cf(1) - phase_2_cf(end);
+phase_4_cf_shifted = phase_4_cf - phase_4_cf_shift;
+
+
+wave_transparency = 0.25;
+% Colors
+phase_2_color = '#FF8552';
+phase_4_color = '#78CAD2';
+phase_4_shifted_color = '#094074';
+
+% Fontsizes
+tickFontSize = 8;
+labelFontSize = 10;
+legendFontSize = 8;
+annotationFontSize = 6;
+linewidth = 1;
+sz = 5;
+
+% Plotting
+clc; close all
+ax = figure('color', 'white', 'units', 'centimeters', 'position', [10,10,13,7]);
+fig = tiledlayout(2,2,"TileSpacing",'tight', 'padding', 'tight');
+
+% C_f profiles
+% ax1 = nexttile([1 2]);
+ax1 = nexttile(1);
+set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
+hold on
+plot((hysteresis(1).x) + 0.25, hysteresis(1).cf, ...
+     'linewidth', linewidth, 'color', phase_2_color)
+
+plot((hysteresis(3).x + 0.5) + 0.25, hysteresis(3).cf, ...
+     'linewidth', linewidth, 'color', phase_4_color, 'linestyle', '-')
+
+plot((hysteresis(3).x + 0.5) + 0.25, phase_4_cf_shifted, ...
+     'linewidth', linewidth, 'color', phase_4_shifted_color')
+
+% Plot reference wave profile
+Cf_reference_scale = 0.5;
+Cf_reference_offset = 2E-3;
+ref_x = 0.5 + (integral.(caze)(1).wave.x  - mean(integral.(caze)(1).wave.x, 'all', 'omitnan')) / integral.(caze)(1).wavelength;
+ref_wave = (Cf_reference_scale * integral.(caze)(1).wave.wave_profile) + Cf_reference_offset;
+plot(ref_x, ref_wave, 'color', 'black', 'linewidth', linewidth, 'linestyle', '-', 'handlevisibility', 'off');
+
+% Shaded region below wave
+hFill = patch( ...
+[ref_x, fliplr(ref_x)], ...
+[ref_wave, -10 * ones(size(ref_wave))], ...
+'k', ...
+'FaceAlpha', wave_transparency, ...      
+'EdgeColor', 'none', ...    
+'HandleVisibility', 'off'); 
+uistack(hFill, 'bottom')
+
+% Plot details
+hold off
+xline(0.5, 'color', 'black', 'linestyle', '-', 'linewidth', linewidth, 'HandleVisibility', 'off')
+ylabel('$C_f$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+ylim([-1.5E-3, 0.02])
+yticks(0:5E-3:25E-3)
+xlim([0, 1])
+ax = gca;
+ax.XAxis.Visible = 'off';
+
+% Make y axis easier to read
+ax.YAxis.Exponent = -3;
+ax.YAxis.TickLabelFormat = '%2.0f';
+
+% Show what the \delta is
+exponent = -3;
+mantissa = phase_4_cf_shift / 10^exponent;
+text(0.51, 0.55, sprintf('$\\delta C_f = %0.1f \\times 10^{%d}$', -mantissa, exponent), ...
+    'Units', 'normalized', ...
+    'Interpreter', 'latex', ...
+    'FontSize', annotationFontSize)
+
+
+
+
+%%% Re_{\theta} profiles
+% ax2 = nexttile([1 2]);
+ax2 = nexttile(3);
+set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
+hold on
+plot((hysteresis(1).x) + 0.25, hysteresis(1).Re_theta, ...
+     'linewidth', linewidth, 'color', phase_2_color, 'displayname', '$\varphi = \lambda/4$')
+
+plot((hysteresis(3).x + 0.5) + 0.25, hysteresis(3).Re_theta, ...
+     'linewidth', linewidth, 'color', phase_4_color, 'linestyle', '-', 'Displayname', '$\varphi = 3 \lambda/4$')
+
+plot((hysteresis(3).x + 0.5) + 0.25, phase_4_Re_theta_shifted, ...
+     'linewidth', linewidth, 'color', phase_4_shifted_color', 'Displayname', '$\varphi = 3 \lambda/4 + \delta$')
+
+% Plot reference wave profile
+Re_theta_reference_scale = 7E4;
+Re_theta_reference_offset = 2500;
+ref_x = 0.5 + (integral.(caze)(1).wave.x  - mean(integral.(caze)(1).wave.x, 'all', 'omitnan')) / integral.(caze)(1).wavelength;
+ref_wave = (Re_theta_reference_scale * integral.(caze)(1).wave.wave_profile) + Re_theta_reference_offset;
+plot(ref_x, ref_wave, 'color', 'black', 'linewidth', linewidth, 'linestyle', '-', 'handlevisibility', 'off', 'Displayname', '$\eta$');
+
+% Shaded region below wave
+hFill = patch( ...
+[ref_x, fliplr(ref_x)], ...
+[ref_wave, -10 * ones(size(ref_wave))], ...
+'k', ...
+'FaceAlpha', wave_transparency, ...        
+'EdgeColor', 'none', ...     
+'HandleVisibility', 'off'); 
+uistack(hFill, 'bottom')
+
+% Plot details
+hold off
+xline(0.5, 'color', 'black', 'linestyle', '-', 'linewidth', linewidth, 'HandleVisibility', 'off')
+ylabel('$Re_{\theta}$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+xlabel('$\xi / \lambda$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+ylim([2000, 5000])
+yticks(3000:1000:5000)
+xlim([0, 1])
+xticks(0:0.25:1)
+
+% Show what the \Delta is
+text(0.24, 0.39, sprintf('$\\delta Re_{\\theta} = %3.2f$', -phase_4_Re_theta_shift), ...
+    'Units', 'normalized', ...
+    'Interpreter', 'latex', ...
+    'FontSize', annotationFontSize)
+
+% Align axes
+linkaxes([ax1, ax2], 'x')
 
 
 
@@ -756,7 +887,149 @@ addPanelLabelsFixed(bigfig, [ax1, ax2, ax3], {'a', 'b', 'c'}, 'Fontsize', 8, 'Of
 
 
 
+%%% Add example hysteresis plot
+Cf_LL = 2E-3;
+Cf_UL = 20E-3;
+Re_theta_LL = 2800;
+Re_theta_UL = 4600;
+Cf_ticks = Cf_LL + 1E-3:0.005:Cf_UL;
+Re_theta_ticks = Re_theta_LL:500:Re_theta_UL;
 
+
+% Set up tile
+ax3 = nexttile([2, 1]);
+set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
+hold on
+
+% Plot first phase
+scatter(phase_2_Re_theta, phase_2_cf, sz, 'filled', ...
+        'MarkerFaceColor', phase_2_color, 'HandleVisibility', 'off')
+plot(phase_2_Re_theta, phase_2_cf, 'Color', phase_2_color, ...
+     'linewidth', linewidth, 'displayname', '$\varphi = \lambda/4$')
+
+% Plot raw phase
+scatter(phase_4_Re_theta, phase_4_cf, sz, 'filled', ...
+        'MarkerFaceColor', phase_4_color, 'HandleVisibility', 'off', ...
+        'MarkerFaceAlpha', 0.25)
+P = plot(phase_4_Re_theta, phase_4_cf, 'Color', phase_4_color, ...
+         'linewidth', linewidth, 'displayname', '$\varphi = 3 \lambda/4$');
+P.Color(4) = 0.25;
+
+% Plot shifted phase
+scatter(phase_4_Re_theta_shifted, phase_4_cf_shifted, sz, 'filled', ...
+        'MarkerFaceColor', phase_4_shifted_color', 'HandleVisibility', 'off')
+plot(phase_4_Re_theta_shifted, phase_4_cf_shifted, 'Color', phase_4_shifted_color', ...
+     'linewidth', linewidth, 'displayname', '$\varphi = 3 \lambda/4 + \delta$')
+
+
+
+% Legend for positions along wave
+plot(nan, nan, 'color', 'white', 'displayname', '')
+
+% Mark the starting point
+scatter(phase_2_Re_theta(1), phase_2_cf(1), 2*sz, '^', 'filled', 'MarkerFaceColor', 'white', ...
+        'MarkerEdgeColor', 'black', 'LineWidth', linewidth, 'HandleVisibility', 'off')
+hLeg = plot(nan, nan, '^', ...
+    'MarkerFaceColor', 'white', ...
+    'MarkerEdgeColor', 'black', ...
+    'MarkerSize', 4, ...
+    'LineWidth', linewidth, ...
+    'LineStyle', 'none', ...
+    'DisplayName', '$\xi / \lambda = 0$');
+
+
+% Mark the crest
+scatter(phase_2_Re_theta(end), phase_2_cf(end), 2*sz, 'o', 'filled', 'MarkerFaceColor', 'white', ...
+        'MarkerEdgeColor', 'black', 'LineWidth', linewidth, 'HandleVisibility', 'off')
+hLeg = plot(nan, nan, 'o', ...
+    'MarkerFaceColor', 'white', ...
+    'MarkerEdgeColor', 'black', ...
+    'MarkerSize', 4, ...
+    'LineWidth', linewidth, ...
+    'LineStyle', 'none', ...
+    'DisplayName', '$\xi / \lambda = 0.5$');
+
+% Mark the ending point
+scatter(phase_4_Re_theta_shifted(end), phase_4_cf_shifted(end), 2*sz, 'v', 'filled', 'MarkerFaceColor', 'white', ...
+        'MarkerEdgeColor', 'black', 'LineWidth', linewidth, 'HandleVisibility', 'off')
+% scatter(nan, nan, sz, 'v', 'filled', 'MarkerFaceColor', 'white', ...
+%         'MarkerEdgeColor', 'black', 'LineWidth', linewidth, 'displayname', '$\xi / \lambda = 1$')
+hLeg = plot(nan, nan, 'v', ...
+    'MarkerFaceColor', 'white', ...
+    'MarkerEdgeColor', 'black', ...
+    'MarkerSize', 4, ...
+    'LineWidth', linewidth, ...
+    'LineStyle', 'none', ...
+    'DisplayName', '$\xi / \lambda = 1$');
+
+
+% Plot lines to annotate \Delta between start and stop
+x0 = phase_2_Re_theta(1);
+y0 = phase_2_cf(1);
+x1 = phase_4_Re_theta_shifted(end);
+y1 = phase_4_cf_shifted(end);
+
+% One polyline: vertical up to (x0,y1), then horizontal to (x1,y1)
+P = plot([x0, x0, x1], [y0, y1, y1], ...
+         'LineWidth', linewidth, ...
+         'Color', 'black', ...
+         'LineJoin', 'round', ...
+         'HandleVisibility', 'off');
+uistack(P,'bottom')
+hold off
+
+% Midpoints of each segment
+midV = [x0, (y0+y1)/2];      % vertical segment midpoint
+midH = [(x0+x1)/2, y1];      % horizontal segment midpoint
+
+% Small offsets in DATA units (tune once)
+dx = 0.01 * range(xlim);     % right/left nudge
+dy = 0.01 * range(ylim);     % up/down nudge
+
+% Put LaTeX text centered on the vertical segment (nudged left)
+txtV = text(midV(1)+dx, midV(2), '$\Delta c_f$', ...
+    'Interpreter','latex', ...
+    'HorizontalAlignment','left', ...
+    'VerticalAlignment','middle', ...
+    'FontSize', 6);
+
+% Put LaTeX text centered on the horizontal segment (nudged up)
+txtH = text(midH(1), midH(2)-dy, '$\Delta Re_{\theta}$', ...
+    'Interpreter','latex', ...
+    'HorizontalAlignment','center', ...
+    'VerticalAlignment','top', ...
+    'FontSize', 6);
+
+
+% Legend
+leg = legend('box', 'off', 'interpreter', 'latex', 'location', 'northwest', 'fontsize', legendFontSize);
+leg.IconColumnWidth = 10;
+
+
+
+
+% Tick marks
+xticks(Re_theta_ticks)
+yticks(Cf_ticks)
+
+% Make y axis easier to read
+ax3.YAxis.Exponent = -3;
+ax3.YAxis.TickLabelFormat = '%2.0f';
+
+% Axes labels
+xlabel('$Re_{\theta}$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+ylabel('$C_f$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+
+% Axes limits
+xlim([Re_theta_LL, Re_theta_UL])
+ylim([Cf_LL, Cf_UL])
+
+
+% Print shifts
+fprintf('Re_theta shift and scaling\n\n')
+fprintf('Shift applied: %.4f\n', phase_4_Re_theta_shift);
+fprintf('Cf shift and scaling\n')
+fprintf('Shift applied: %.4f\n', phase_4_cf_shift);
 
 
 
@@ -845,23 +1118,18 @@ for phase = 2:2:4
         plot(Re_theta - delta_Re_theta, cf - delta_cf, 'color', 'blue')
 
     end
-
-    
-
-  
-
 end
 hold off
 
 
 
 %% Loop through and plot: Wind speed per subplot NO SCALING
-
+% STITCHING PHASES 2 + 4
 
 wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
 % smoothing_kernel = 16;
 
-smoothing_kernel = 16;
+smoothing_kernel = 32;
 sg_order = 3;
 sg_framelength = 25;
 
@@ -1141,11 +1409,284 @@ xlim([2000, 6500])
 ylim([0 20])
 
 
-% Save figure
-% pause(3)
-% figure_name = strcat('Hysteresis_', wind_speeds{s}, '.pdf');
-% exportgraphics(t, fullfile(figure_folder, 'Hysteresis', figure_name), 'resolution', 600, 'ContentType', 'image')
-% close all
+
+
+
+
+
+%% Loop through and plot: Wind speed per subplot NO SCALING
+% STITCHING PHASES 1 + 3
+
+
+smoothing_kernel = 32;
+sg_order = 3;
+sg_framelength = 25;
+
+wind_speeds = {'WT4', 'WT6', 'WT8'};
+waves = {'A', 'B', 'C', 'D'};
+
+
+clc;
+for s = 1:length(wind_speeds)
+    wind_speed = wind_speeds{s};
+
+    if ismember(wind_speed(end), {'4'})
+        u_inf = 2.4181;
+    elseif ismember(wind_speed(end), {'6'})
+        u_inf = 3.8709;
+    elseif ismember(wind_speed(end), {'8'})
+        u_inf = 5.4289;
+    end
+
+    h(s) = nexttile;
+    hold on
+    for w = 1:length(waves)
+        wave = waves{w};
+        caze = strcat(wind_speed, '_WV', wave, '_AG0');
+
+        % Collect data
+        for phase = 1:2:3
+
+            % Skin friction
+            cf = skin_friction_profiles.(caze)(phase).cf;
+
+            % Re_{\theta}
+            theta = integral.(caze)(phase).filtered.momentum;
+            Re_theta = (u_inf * theta) / nu;
+
+            centered_normalized_x = (integral.(caze)(phase).x - mean(integral.(caze)(phase).wave.x, 'all', 'omitnan')) / integral.(caze)(1).wavelength;
+            min_array_size = min([length(cf), length(Re_theta)]);
+            centered_normalized_x = centered_normalized_x(1:min_array_size);
+            cf = cf(1:min_array_size);
+            Re_theta = Re_theta(1:min_array_size);
+
+            if strcmp(wind_speed, 'WT6') && strcmp(wave, 'A') && phase == 2
+
+                % Crop data
+                x_mask = centered_normalized_x;
+                x_mask(abs(centered_normalized_x) > 0.25) = nan;
+                x_mask(~isnan(x_mask)) = 1;
+    
+                cf = cf .* x_mask;
+                Re_theta = Re_theta .* x_mask;
+                masked_x = centered_normalized_x .* x_mask;
+    
+                masked_x = masked_x(~isnan(masked_x));
+                cf = cf(~isnan(cf));
+                Re_theta = Re_theta(~isnan(Re_theta));
+
+                cf = smoothdata(cf, 'movmean', smoothing_kernel);
+                cf = filloutliers(cf, 'previous', 'median');
+                cf = sgolayfilt(cf, sg_order, sg_framelength);
+
+                % Remove bad data around range
+                badRegion = (masked_x >= 0.0) & (masked_x <= 0.24);
+                cf_clean = cf;
+                cf_clean(badRegion) = NaN;
+                cf = fillmissing(cf_clean, 'pchip');
+            else
+
+                % Crop data
+                x_mask = centered_normalized_x;
+                x_mask(abs(centered_normalized_x) > 0.25) = nan;
+                x_mask(~isnan(x_mask)) = 1;
+    
+                cf = cf .* x_mask;
+                Re_theta = Re_theta .* x_mask;
+                masked_x = centered_normalized_x .* x_mask;
+
+                masked_x = masked_x(~isnan(masked_x));
+                cf = cf(~isnan(cf));
+                Re_theta = Re_theta(~isnan(Re_theta));
+
+                cf = smoothdata(cf, 'movmean', 12);
+                % cf = filloutliers(cf, 'previous', 'median');
+                % cf = sgolayfilt(cf, sg_order, sg_framelength);
+    
+            end
+
+
+            % Save data to handle stitching after
+            hysteresis(phase).cf = cf(~isnan(cf));
+            hysteresis(phase).Re_theta = Re_theta(~isnan(Re_theta));
+            hysteresis(phase).x = masked_x(~isnan(masked_x));
+        end
+
+        % Stitch and scale phases
+        phase_1_cf = hysteresis(1).cf;
+        phase_1_Re_theta = hysteresis(1).Re_theta;
+
+        phase_3_cf = hysteresis(3).cf;
+        phase_3_Re_theta = hysteresis(3).Re_theta;
+
+        % Compute shifts
+        phase_3_Re_theta_shift = phase_3_Re_theta(1) - phase_1_Re_theta(end);
+        phase_3_Re_theta_shifted = phase_3_Re_theta - phase_3_Re_theta_shift;
+
+        phase_3_cf_shift = phase_3_cf(1) - phase_1_cf(end);
+        phase_3_cf_shifted = phase_3_cf - phase_3_cf_shift;
+
+        % Save data back to array to make seperate loop for plotting
+        clean_data.(caze).cf_1 = phase_1_cf;
+        clean_data.(caze).cf_3 = phase_3_cf_shifted;
+
+        clean_data.(caze).Re_theta_1 = phase_1_Re_theta;
+        clean_data.(caze).Re_theta_3 = phase_3_Re_theta_shifted;
+
+        clear hysteresis phase_3_Re_theta_shifted phase_3_cf_shifted 
+    end
+    % hold off
+
+end
+
+
+
+
+
+% Loop through and plot: Wave speed per subplot
+tickFontSize = 8;
+labelFontSize = 10;
+legendFontSize = 8;
+
+linewidth = 1;
+
+wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+
+wind_speeds = {'WT4', 'WT6', 'WT8'};
+waves = {'A', 'B', 'C', 'D'};
+
+wind_speed_alphas = [1, 1, 1];
+
+
+sz = 5;
+
+close all
+ax = figure('color', 'white', 'units', 'centimeters', 'position', [10,10,13,5]);
+t = tiledlayout(1, 4, 'Padding', 'tight', 'TileSpacing', 'compact');
+
+for w = 1:length(waves)
+    wave = waves{w};
+    h(w) = nexttile;
+    set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
+    hold on
+
+    for s = 2
+        wind_speed = wind_speeds{s};
+    
+        if ismember(wind_speed(end), {'4'})
+            u_inf = 2.4181;
+        elseif ismember(wind_speed(end), {'6'})
+            u_inf = 3.8709;
+        elseif ismember(wind_speed(end), {'8'})
+            u_inf = 5.4289;
+        end
+    
+        caze = strcat(wind_speed, '_WV', wave, '_AG0');
+
+        % Plot saved data
+        phase_2_Re_theta = clean_data.(caze).Re_theta_1;
+        phase_2_cf = clean_data.(caze).cf_1 * 1E3;
+
+        phase_4_Re_theta_shifted = clean_data.(caze).Re_theta_3;
+        phase_4_cf_shifted = clean_data.(caze).cf_3 * 1E3;
+
+        % Plot
+        plot(phase_2_Re_theta, phase_2_cf, 'color', wave_colors{w}, 'linewidth', 2, 'HandleVisibility', 'off')
+        plot(phase_4_Re_theta_shifted, phase_4_cf_shifted, 'color', wave_colors{w}, 'linewidth', 2, 'HandleVisibility', 'off')
+
+        % Mark the starting point
+        scatter(phase_2_Re_theta(1), phase_2_cf(1), 2*sz, 'square', 'filled', 'MarkerFaceColor', 'white', ...
+                'MarkerEdgeColor', 'black', 'LineWidth', 1', 'HandleVisibility', 'off')
+
+        % Mark where peak is
+        scatter(phase_4_Re_theta_shifted(1), phase_4_cf_shifted(1), 2*sz, 'o', 'filled', 'MarkerFaceColor', 'white', ...
+                'MarkerEdgeColor', 'black', 'LineWidth', 1', 'HandleVisibility', 'off')
+
+        % Mark where loop ends
+        scatter(phase_4_Re_theta_shifted(end), phase_4_cf_shifted(end), 2*sz, 'diamond', 'filled', 'MarkerFaceColor', 'white', ...
+                'MarkerEdgeColor', 'black', 'LineWidth', 1', 'HandleVisibility', 'off')
+
+        clear hysteresis phase_4_Re_theta_shifted phase_4_cf_shifted 
+
+        if w == 1
+            ylabel('$C_f \times 10^{3}$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+        end
+
+        if w ~= 1
+           set(h(w), 'yticklabel',[])
+        end
+
+    end
+    hold off
+    xticks(3000:2000:6000)
+    label = sprintf('$\\lambda_{%s}, \\hspace{1mm} ak_{%s}$', wavelength_names.(wave), steepnesses.(wave));
+    title(label, 'interpreter', 'latex', 'fontsize', 10)
+
+    
+    % Make y axis easier to read
+    % ax = gca;
+    % ax.YAxis.Exponent = -3;          % shows ×10^{-6} once
+    % ax.YAxis.TickLabelFormat = '%2.0f';  % two digits on ticks
+
+end
+
+% Make a legend
+hold on
+
+% What colors mean
+% for w = 1:length(waves)
+%     disp(w)
+%     wave = waves{w};
+%     label = sprintf('$\\lambda_{%s}, \\hspace{1mm} ak_{%s}$', wavelength_names.(wave), steepnesses.(wave));
+%     plot(nan, nan, 'color', wave_colors{w}, 'LineWidth', 1, 'DisplayName', label)
+% end
+% 
+% % Legend white space
+% plot(nan, nan, 'color', 'white', 'displayname', '')
+
+% Legend for keypoint markers
+% Mark the starting point
+hLeg = plot(nan, nan, 'square', ...
+    'MarkerFaceColor', 'white', ...
+    'MarkerEdgeColor', 'black', ...
+    'MarkerSize', 4, ...
+    'LineWidth', linewidth, ...
+    'LineStyle', 'none', ...
+    'DisplayName', '$\xi / \lambda = 0$');
+
+% Mark the crest
+hLeg = plot(nan, nan, 'o', ...
+    'MarkerFaceColor', 'white', ...
+    'MarkerEdgeColor', 'black', ...
+    'MarkerSize', 4, ...
+    'LineWidth', linewidth, ...
+    'LineStyle', 'none', ...
+    'DisplayName', '$\xi / \lambda = 0.5$');
+
+% Mark the ending point
+hLeg = plot(nan, nan, 'diamond', ...
+    'MarkerFaceColor', 'white', ...
+    'MarkerEdgeColor', 'black', ...
+    'MarkerSize', 4, ...
+    'LineWidth', linewidth, ...
+    'LineStyle', 'none', ...
+    'DisplayName', '$\xi / \lambda = 1$');
+
+hold off
+leg = legend('interpreter', 'latex', 'box', 'off', 'orientation', 'horizontal', 'fontsize', legendFontSize);
+% leg.IconColumnWidth = 19;
+leg.Layout.Tile = 'north';
+leg.ItemTokenSize = [10 0];
+
+
+xlabel(t, '$Re_{\theta}$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+
+linkaxes(h, 'xy')
+% xlim([2000, 6200])
+xlim([1300, 6500])
+% ylim([0 20E-3])
+ylim([0 20])
+
 
 
 
@@ -1153,12 +1694,18 @@ ylim([0 20])
 %% Compute Closure and ranges for \Delta C_f and \Delta Re_{\theta}
 
 % Ranges
-cf_ranges = nan(3,4);
-Re_theta_ranges = nan(3,4);
+cf_ranges_24 = nan(3,4);
+Re_theta_ranges_24 = nan(3,4);
+
+cf_ranges_13 = nan(3,4);
+Re_theta_ranges_13 = nan(3,4);
 
 % Closure
-cf_closure = nan(3,4);
-Re_theta_closure = nan(3,4);
+cf_closure_24 = nan(3,4);
+Re_theta_closure_24 = nan(3,4);
+
+cf_closure_13 = nan(3,4);
+Re_theta_closure_13 = nan(3,4);
 
 
 wind_speeds = {'WT4', 'WT6', 'WT8'};
@@ -1182,6 +1729,7 @@ for w = 1:length(waves)
         % Get wavelengths
         wavelength = wavelengths.(wave);
 
+        %%% Phases 2 + 4
         % Plot saved data
         phase_2_Re_theta = clean_data.(caze).Re_theta_2;
         phase_2_cf = clean_data.(caze).cf_2;
@@ -1193,17 +1741,35 @@ for w = 1:length(waves)
         cf_range = range([phase_2_cf, phase_4_cf_shifted]);
         Re_theta_range = range([phase_2_Re_theta, phase_4_Re_theta_shifted]);
 
-        cf_ranges(s,w) = cf_range;
-        Re_theta_ranges(s,w) = Re_theta_range;
+        cf_ranges_24(s,w) = cf_range;
+        Re_theta_ranges_24(s,w) = Re_theta_range;
 
         % Compute + save closure
-        cf_closure(s,w) = (phase_4_cf_shifted(end) - phase_2_cf(1));
-        Re_theta_closure(s,w) = (phase_4_Re_theta_shifted(end) - phase_2_Re_theta(1));
+        cf_closure_24(s,w) = (phase_4_cf_shifted(end) - phase_2_cf(1));
+        Re_theta_closure_24(s,w) = (phase_4_Re_theta_shifted(end) - phase_2_Re_theta(1));
 
-        % cf_closure(s,w) = (phase_4_cf_shifted(end) - phase_2_cf(1)) / wavelength;
-        % Re_theta_closure(s,w) = (phase_4_Re_theta_shifted(end) - phase_2_Re_theta(1)) / wavelength;
+
+        %%% Phases 1 + 3
+        % Plot saved data
+        phase_1_Re_theta = clean_data.(caze).Re_theta_1;
+        phase_1_cf = clean_data.(caze).cf_1;
+
+        phase_3_Re_theta_shifted = clean_data.(caze).Re_theta_3;
+        phase_3_cf_shifted = clean_data.(caze).cf_3;
+
+        % Compute + save range of data
+        cf_range = range([phase_1_cf, phase_3_cf_shifted]);
+        Re_theta_range = range([phase_1_Re_theta, phase_3_Re_theta_shifted]);
+
+        cf_ranges_13(s,w) = cf_range;
+        Re_theta_ranges_13(s,w) = Re_theta_range;
+
+        % Compute + save closure
+        cf_closure_13(s,w) = (phase_3_cf_shifted(end) - phase_1_cf(1));
+        Re_theta_closure_13(s,w) = (phase_3_Re_theta_shifted(end) - phase_1_Re_theta(1));
 
         clear hysteresis phase_2_Re_theta phase_2_cf phase_4_Re_theta_shifted phase_4_cf_shifted 
+        clear phase_1_Re_theta phase_1_cf phase_3_Re_theta_shifted phase_3_cf_shifted 
     end
 end
 
@@ -1275,11 +1841,18 @@ wave_markers.('B') = 'square';
 wave_markers.('C') = 'diamond';
 wave_markers.('D') = 'o';
 
+
+uncertaintyTrans = 0.3;
+mean_sz = 20;
+inst_sz = 15;
+
+
 % Range of Cf vs steepness
 ax = figure('color', 'white', 'units', 'centimeters', 'position', [10,10,13,5]);
 t = tiledlayout(1,3, 'padding', 'tight', 'TileSpacing', 'loose');
 
-sz = 20;
+
+
 linewidth = 1.5;
 fitLinewidth = 1;
 
@@ -1316,14 +1889,15 @@ for s = 1:3
         % ---- special missing point ----
         if (s == 3) && (w == 4)
             tmpX(w) = steepness;
-            tmpY(w) = NaN;
+            tmpY1(w) = NaN;
+            tmpY2(w) = NaN;
             steepness_missing = steepness;
             continue
         end
 
         % collect for global fit
         all_steepness(end+1) = steepness;
-        all_cf(end+1)        = 1E3 * cf_ranges(s,w);
+        all_cf(end+1)        = 1E3 * cf_ranges_24(s,w);
 
         % scatter (original data)
         vis = 'on';
@@ -1332,41 +1906,89 @@ for s = 1:3
         % Markers based off of wave
 
         label = sprintf('$u_{\\infty} = %1.2f$ m/s', u_inf);
-        scatter(steepness, 1E3 * cf_ranges(s,w), sz, wave_markers.(wave), 'filled', ...
+        % Phase 2 + 4
+        P1 = scatter(steepness, 1E3 * cf_ranges_24(s,w), inst_sz, wave_markers.(wave), 'filled', ...
             'MarkerFaceColor', wind_speed_colors{s}, ...
             'HandleVisibility', vis, ...
-            'DisplayName', label)
+            'DisplayName', label, ...
+            'MarkerFaceAlpha', uncertaintyTrans);
+
+       % Phase 1 + 3
+        P2 = scatter(steepness, 1E3 * cf_ranges_13(s,w), inst_sz, wave_markers.(wave), 'filled', ...
+            'MarkerFaceColor', wind_speed_colors{s}, ...
+            'HandleVisibility', vis, ...
+            'DisplayName', label, ...
+            'MarkerFaceAlpha', uncertaintyTrans);
+
+        % Mean of phases
+        scatter(steepness, 1E3 * mean([cf_ranges_13(s,w), cf_ranges_24(s,w)], 'all'), 2 * mean_sz, wave_markers.(wave), 'filled', ...
+            'MarkerFaceColor', wind_speed_colors{s}, ...
+            'HandleVisibility', vis, ...
+            'DisplayName', label, ...
+            'MarkerFaceAlpha', 1)
 
         tmpX(w) = steepness;
-        tmpY(w) = 1E3* cf_ranges(s,w);
+        tmpY1(w) = 1E3 * cf_ranges_24(s,w);
+        tmpY2(w) = 1E3 * cf_ranges_13(s,w);
+
+        uistack([P1, P2], 'bottom')
     end
 
     % ---- line plot with interpolation ----
     [sortedX, sortIdx] = sort(tmpX, 'ascend');
-    sortedY = tmpY(sortIdx);
+    sortedY1 = tmpY1(sortIdx);
+    sortedY2 = tmpY2(sortIdx);
 
     valid = ~isnan(sortedX);
     sortedX = sortedX(valid);
-    sortedY = sortedY(valid);
+    sortedY1 = sortedY1(valid);
+    sortedY2 = sortedY2(valid);
 
-    yLine = fillmissing(sortedY, 'spline', ...
+
+    sortedY1 = fillmissing(sortedY1, 'spline', ...
+                        'SamplePoints', sortedX);
+    sortedY2 = fillmissing(sortedY2, 'spline', ...
                         'SamplePoints', sortedX);
 
-    plot(sortedX, yLine, ...
+    sortedY = mean([sortedY1; sortedY2], 1);
+
+    plot(sortedX, sortedY, ...
         'Color', wind_speed_colors{s}, ...
         'LineWidth', linewidth, ...
         'HandleVisibility', 'off')
 
     % ---- plot interpolated scatter point ----
     if s == 3 && ~isnan(steepness_missing)
-        y_interp = interp1(sortedX, yLine, steepness_missing);
+        y_interp1 = interp1(sortedX, sortedY1, steepness_missing);
+        y_interp2 = interp1(sortedX, sortedY2, steepness_missing);
 
-        scatter(steepness_missing, y_interp, sz, ...
+        P1 = scatter(steepness_missing, y_interp1, inst_sz, ...
             'MarkerFaceColor', wind_speed_colors{s}, ...
             'MarkerEdgeColor', 'none', ...
-            'HandleVisibility', 'off');
+            'HandleVisibility', 'off', ...
+            'MarkerFaceAlpha', uncertaintyTrans);
+
+        P2 = scatter(steepness_missing, y_interp2, inst_sz, ...
+            'MarkerFaceColor', wind_speed_colors{s}, ...
+            'MarkerEdgeColor', 'none', ...
+            'HandleVisibility', 'off', ...
+            'MarkerFaceAlpha', uncertaintyTrans);
+
+        scatter(steepness_missing, mean([y_interp1, y_interp2], 'all'), 2 * mean_sz, ...
+            'MarkerFaceColor', wind_speed_colors{s}, ...
+            'MarkerEdgeColor', 'none', ...
+            'HandleVisibility', 'off', ...
+            'MarkerFaceAlpha', 1);
+
+        uistack([P1, P2], 'bottom')
     end
 end
+
+
+
+
+
+
 
 
 % ---- global fit ----
@@ -1445,15 +2067,40 @@ for s = 1:3
         end
 
         label = sprintf('$u_{\\infty} = %1.2f$ m/s', u_inf);
-        scatter(wavelength / mean_BL_thickness, Re_theta_ranges(s,w), sz, wave_markers.(wave), 'filled',...
+        % Phase 2 + 4
+        P1 = scatter(wavelength / mean_BL_thickness, Re_theta_ranges_24(s,w), inst_sz, wave_markers.(wave), 'filled',...
                 'markerfacecolor', wind_speed_colors{s}, ...
-                'displayname', label, 'HandleVisibility', vis)
+                'displayname', label, ...
+                'HandleVisibility', vis, ...
+                'MarkerFaceAlpha', uncertaintyTrans);
+
+        % Phase 1 + 3
+        P2 = scatter(wavelength / mean_BL_thickness, Re_theta_ranges_13(s,w), inst_sz, wave_markers.(wave), 'filled', ...
+            'MarkerFaceColor', wind_speed_colors{s}, ...
+            'HandleVisibility', vis, ...
+            'DisplayName', label, ...
+            'MarkerFaceAlpha', uncertaintyTrans);
+
+        % Mean of phases
+        scatter(wavelength / mean_BL_thickness, mean([Re_theta_ranges_13(s,w), Re_theta_ranges_24(s,w)], 'all'), 2 * mean_sz, wave_markers.(wave), 'filled', ...
+            'MarkerFaceColor',  wind_speed_colors{s}, ...
+            'HandleVisibility', vis, ...
+            'DisplayName', label, ...
+            'MarkerFaceAlpha', 1)
+
+        uistack([P1, P2], 'bottom')
     end
     [sorted_wavelengths, sortIdx] = sort(wvlenths,'ascend');
-    plot(sorted_wavelengths, Re_theta_ranges(s, sortIdx), 'color', wind_speed_colors{s}, 'linewidth', linewidth, 'HandleVisibility', 'off')
-
     x = sorted_wavelengths(:);
-    y = Re_theta_ranges(s, sortIdx).';   % make column
+    y1 = Re_theta_ranges_24(s, sortIdx).';   % make column
+    y2 = Re_theta_ranges_13(s, sortIdx).';   % make column
+    y = mean([y1, y2], 2, 'omitnan');
+    P = plot(sorted_wavelengths,y, 'color', wind_speed_colors{s}, 'linewidth', linewidth, 'HandleVisibility', 'off');
+    uistack(P, 'bottom')
+
+
+    % x = sorted_wavelengths(:);
+    % y = Re_theta_ranges_24(s, sortIdx).';   % make column
     
     % Fit y = b*x (through origin)
     p = polyfit(x,y,1);
@@ -1531,16 +2178,39 @@ for s = 1:3
         end
 
         label = sprintf('$u_{\\infty} = %1.2f$ m/s', u_inf);
-        scatter(wavelength / mean_BL_thickness, Re_theta_closure(s,w), sz, wave_markers.(wave), 'filled', ...
+        % Phase 2 + 4
+        P1 = scatter(wavelength / mean_BL_thickness, Re_theta_closure_24(s,w), inst_sz, wave_markers.(wave), 'filled', ...
                 'markerfacecolor', wind_speed_colors{s}, ...
-                'displayname', label, 'HandleVisibility', vis)
+                'displayname', label, ...
+                'HandleVisibility', vis, ...
+                'MarkerFaceAlpha', uncertaintyTrans);
+
+        % Phase 1 + 3
+        P2 = scatter(wavelength / mean_BL_thickness, Re_theta_closure_13(s,w), inst_sz, wave_markers.(wave), 'filled', ...
+            'MarkerFaceColor', wind_speed_colors{s}, ...
+            'HandleVisibility', vis, ...
+            'DisplayName', label, ...
+            'MarkerFaceAlpha', uncertaintyTrans);
+
+        % Mean of phases
+        scatter(wavelength / mean_BL_thickness, mean([Re_theta_closure_13(s,w), Re_theta_closure_24(s,w)], 'all'), 2 * mean_sz, wave_markers.(wave), 'filled', ...
+            'MarkerFaceColor', wind_speed_colors{s}, ...
+            'HandleVisibility', vis, ...
+            'DisplayName', label, ...
+            'MarkerFaceAlpha', 1)
+        uistack([P1, P2], 'bottom')
     end
     [sorted_wavelengths, sortIdx] = sort(wvlenths,'ascend');
-    plot(sorted_wavelengths, Re_theta_closure(s, sortIdx), 'color', wind_speed_colors{s}, 'linewidth', linewidth, 'HandleVisibility', 'off')
-
-
     x = sorted_wavelengths(:);
-    y = Re_theta_closure(s, sortIdx).';   % make column
+    y1 = Re_theta_closure_24(s, sortIdx).';   % make column
+    y2 = Re_theta_closure_13(s, sortIdx).';   % make column
+    y = mean([y1, y2], 2, 'omitnan');
+
+    P = plot(sorted_wavelengths, y, 'color', wind_speed_colors{s}, 'linewidth', linewidth, 'HandleVisibility', 'off');
+    uistack(P, 'bottom')
+
+
+   
     
     % Fit y = b*x (through origin)
     p = polyfit(x,y,1);
@@ -1598,13 +2268,22 @@ addPanelLabels(h, {'a', 'b', 'c'}, 'FontSize', 10, 'Offset', [-0.24, 1.15])
 
 
 
-
-
 % Save figure
 % pause(3)
-% figure_name = 'Hysteresis_RangesClosures_Combined.pdf';
+% figure_name = 'Hysteresis_RangesClosures_Combined_Uncertainty.pdf';
 % exportgraphics(t, fullfile(figure_folder, 'Hysteresis',  figure_name), 'resolution', 600, 'ContentType', 'image')
 % close all
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1623,7 +2302,7 @@ wind_speed_colors = {'#0075F2', '#FF8C42', '#D30C7B'};
 ax = figure('color', 'white', 'units', 'centimeters', 'position', [10,10,13,5]);
 t = tiledlayout(1,3, 'padding', 'compact', 'TileSpacing', 'loose');
 
-sz = 10;
+mean_sz = 10;
 linewidth = 1.2;
 
 h(1) = nexttile;
@@ -1666,20 +2345,20 @@ for s = 1:3
 
         % collect for global fit
         all_steepness(end+1) = steepness;
-        all_cf(end+1)        = 1E3 * cf_ranges(s,w);
+        all_cf(end+1)        = 1E3 * cf_ranges_24(s,w);
 
         % scatter (original data)
         vis = 'on';
         if w > 1, vis = 'off'; end
 
         label = sprintf('$u_{\\infty} = %1.2f$ m/s', u_inf);
-        scatter(steepness, 1E3 * cf_ranges(s,w), sz, 'filled', ...
+        scatter(steepness, 1E3 * cf_ranges_24(s,w), mean_sz, 'filled', ...
             'MarkerFaceColor', wind_speed_colors{s}, ...
             'HandleVisibility', vis, ...
             'DisplayName', label)
 
         tmpX(w) = steepness;
-        tmpY(w) = 1E3* cf_ranges(s,w);
+        tmpY(w) = 1E3* cf_ranges_24(s,w);
     end
 
     % ---- line plot with interpolation ----
@@ -1702,7 +2381,7 @@ for s = 1:3
     if s == 3 && ~isnan(steepness_missing)
         y_interp = interp1(sortedX, yLine, steepness_missing);
 
-        scatter(steepness_missing, y_interp, sz, ...
+        scatter(steepness_missing, y_interp, mean_sz, ...
             'MarkerFaceColor', wind_speed_colors{s}, ...
             'MarkerEdgeColor', 'none', ...
             'HandleVisibility', 'off');
@@ -1784,14 +2463,14 @@ for s = 1:3
         end
 
         label = sprintf('$u_{\\infty} = %1.2f$ m/s', u_inf);
-        scatter(steepness, Re_theta_ranges(s,w), sz, 'filled', 'markerfacecolor', wind_speed_colors{s}, ...
+        scatter(steepness, Re_theta_ranges_24(s,w), mean_sz, 'filled', 'markerfacecolor', wind_speed_colors{s}, ...
                 'displayname', label, 'HandleVisibility', vis)
     end
     [sorted_wavelengths, sortIdx] = sort(wvlenths,'ascend');
-    plot(sorted_wavelengths, Re_theta_ranges(s, sortIdx), 'color', wind_speed_colors{s}, 'linewidth', linewidth, 'HandleVisibility', 'off')
+    plot(sorted_wavelengths, Re_theta_ranges_24(s, sortIdx), 'color', wind_speed_colors{s}, 'linewidth', linewidth, 'HandleVisibility', 'off')
 
     x = sorted_wavelengths(:);
-    y = Re_theta_ranges(s, sortIdx).';   % make column
+    y = Re_theta_ranges_24(s, sortIdx).';   % make column
     
     % Fit y = b*x (through origin)
     % b = (x' * y) / (x' * x);
@@ -1872,15 +2551,15 @@ for s = 1:3
         end
 
         label = sprintf('$u_{\\infty} = %1.2f$ m/s', u_inf);
-        scatter(steepness, Re_theta_closure(s,w), sz, 'filled', 'markerfacecolor', wind_speed_colors{s}, ...
+        scatter(steepness, Re_theta_closure_24(s,w), mean_sz, 'filled', 'markerfacecolor', wind_speed_colors{s}, ...
                 'displayname', label, 'HandleVisibility', vis)
     end
     [sorted_wavelengths, sortIdx] = sort(wvlenths,'ascend');
-    plot(sorted_wavelengths, Re_theta_closure(s, sortIdx), 'color', wind_speed_colors{s}, 'linewidth', linewidth, 'HandleVisibility', 'off')
+    plot(sorted_wavelengths, Re_theta_closure_24(s, sortIdx), 'color', wind_speed_colors{s}, 'linewidth', linewidth, 'HandleVisibility', 'off')
 
 
     x = sorted_wavelengths(:);
-    y = Re_theta_closure(s, sortIdx).';   % make column
+    y = Re_theta_closure_24(s, sortIdx).';   % make column
     
     % Fit y = b*x (through origin)
     % b = (x' * y) / (x' * x);
@@ -2239,62 +2918,6 @@ addPanelLabels(h, {'a', 'b', 'c'}, 'FontSize', 10, 'Offset', [0.05, 1])
 
 
 %% Functions
-
-
-function hAnn = addPanelLabelsFixed(fig, ax, labels, varargin)
-% Places (a),(b),... just outside top-left with FIXED physical offsets.
-%
-% fig    : figure handle (e.g., totalFigure)
-% ax     : array of axes handles
-% labels : {'a','b',...} or ["a","b",...]
-%
-% Name-value:
-% 'OffsetPts' : [dx dy] in points (default [-10 6])  (left, up)
-% 'FontSize'  : default 12
-% 'FontName'  : default 'Times New Roman'
-
-p = inputParser;
-addParameter(p,'OffsetPts',[-10 6]);
-addParameter(p,'FontSize',12);
-addParameter(p,'FontName','Times New Roman');
-parse(p,varargin{:});
-
-labels = string(labels);
-offPts = p.Results.OffsetPts;
-
-ppi = get(0,'ScreenPixelsPerInch');
-offPx = offPts/72 * ppi;   % points -> pixels
-
-hAnn = gobjects(numel(ax),1);
-
-for k = 1:numel(ax)
-    if ~isgraphics(ax(k),'axes'), continue; end
-
-    % Axes outer position in figure pixels
-    op = getpixelposition(ax(k), true);  % [x y w h] in pixels relative to figure
-
-    % Anchor point: outside top-left of axes
-    x = op(1) + offPx(1);
-    y = op(2) + op(4) + offPx(2);
-
-    % TeX gives roman parentheses + italic letter
-    str = sprintf('(\\it%s\\rm)', labels(k));
-
-    hAnn(k) = annotation(fig,'textbox', ...
-        'Units','pixels', ...
-        'Position',[x y 40 20], ...   % small box; big enough for "(a)"
-        'String',str, ...
-        'Interpreter','tex', ...
-        'FontName',p.Results.FontName, ...
-        'FontSize',p.Results.FontSize, ...
-        'LineStyle','none', ...
-        'HorizontalAlignment','left', ...
-        'VerticalAlignment','bottom');
-    end
-end
-
-
-
 
 function addPanelLabels(ax, labels, varargin)
 % addPanelLabels(ax, labels) adds (a),(b),... just OUTSIDE top-left of each axes.

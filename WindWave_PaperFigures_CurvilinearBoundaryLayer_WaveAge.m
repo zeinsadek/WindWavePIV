@@ -669,8 +669,8 @@ clear tmpY_max tmpY_min
 
 % Loop through a given wavelength and average of all 4 phases
 clc; close all
-figure('color', 'white', 'units', 'centimeters', 'position', [10,10,13,6]);
-tiledlayout(1,1, 'padding', 'loose')
+figure('color', 'white', 'units', 'centimeters', 'position', [10,10,13,4.5]);
+tiledlayout(1,1, 'padding', 'tight')
 ax = nexttile;
 set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
 hold on
@@ -728,7 +728,15 @@ for w = 1:length(waves)
 
     % Plot line
     label = sprintf('$\\lambda_{%s}, \\hspace{1mm} ak_{%s}$', wavelengths.(wave), steepnesses.(wave));
-    plot(tmpX, tmpY, 'linewidth', lw, 'color', wave_colors{w}, 'displayname', label)
+    plot(tmpX, tmpY, 'linewidth', lw, 'color', wave_colors{w}, 'displayname', label, 'HandleVisibility', 'off')
+
+    hLeg = plot(nan, nan, 'o', ...
+    'MarkerFaceColor',  wave_colors{w}, ...
+    'MarkerEdgeColor','none', ...
+    'MarkerSize', 4, ...        % <-- CONTROL LEGEND SIZE HERE
+    'LineWidth', 1, ...
+    'LineStyle','none', ...
+    'DisplayName',label);
 
     % Shaded region
     % hFill = patch( ...
@@ -758,7 +766,7 @@ for s = 1:length(wind_speeds)
 
     hLeg = plot(nan, nan, wind_speed_markers{s}, ...
     'MarkerFaceColor','black', ...
-    'MarkerEdgeColor','black', ...
+    'MarkerEdgeColor','none', ...
     'MarkerSize', 4, ...        % <-- CONTROL LEGEND SIZE HERE
     'LineWidth', 1, ...
     'LineStyle','none', ...
@@ -768,23 +776,32 @@ end
 
 leg = legend('interpreter', 'latex', 'location', 'eastoutside', 'box', 'off', 'fontsize', legendFontSize);
 leg.IconColumnWidth = 19;
+
+leg.ItemTokenSize(1) = 10;
+
 hold off
 axis square
-% ylim([0.085, 0.115])
 xlim([0.05, 0.35])
+ylim([0.085, 0.115])
 xticks(0.1:0.1:0.3)
-% yticks(0.08:0.01:0.12)
+yticks(0.09:0.01:0.12)
 xlabel('$c \mathbin{/} u_{\infty}$', 'interpreter', 'latex', 'fontsize', labelFontSize)
 ylabel('$\overline{\delta}_{\varphi}$ [m]', 'interpreter', 'latex', 'fontsize', labelFontSize)
 
 
 
 % Save figure
-pause(3)
-figure_name = 'BoundaryLayer_Curvilinear_WaveAge.pdf';
-exportgraphics(ax, fullfile(figure_folder, 'BoundaryLayer', figure_name), 'Resolution', 600, 'ContentType', 'image');
-close all
-clc; fprintf('Generated figure: %s\n\n', figure_name)
+% pause(3)
+% figure_name = 'BoundaryLayer_Curvilinear_WaveAge.pdf';
+% exportgraphics(ax, fullfile(figure_folder, 'BoundaryLayer', figure_name), 'Resolution', 600, 'ContentType', 'image');
+% close all
+% clc; fprintf('Generated figure: %s\n\n', figure_name)
+
+
+
+
+
+
 
 
 

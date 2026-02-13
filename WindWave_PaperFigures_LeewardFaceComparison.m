@@ -248,12 +248,12 @@ cmin = 0;
 % Plotting
 clc; close all
 figure('color', 'white', 'units', 'centimeters', 'Position', [10,10,13,5])
-t = tiledlayout(1, 2, 'padding', 'compact', 'TileSpacing', 'tight');
+t = tiledlayout(1, 2, 'padding', 'tight', 'TileSpacing', 'compact');
 
 %%% Cartesian
 h(1) = nexttile(1);
 set(h(1), 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
-title("-$\langle u' v' \rangle \mathbin{/} u_{\infty}^2$", 'interpreter', 'latex', 'fontsize', titleFontSize)
+% title("-$\langle u' v' \rangle \mathbin{/} u_{\infty}^2$", 'interpreter', 'latex', 'fontsize', titleFontSize)
 hold on
 
 % Load velocities
@@ -308,7 +308,7 @@ clim([cmin, cmax])
 %%% Curvilinear
 h(2) = nexttile(2);
 set(h(2), 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
-title("-$\langle u_{\xi}' u_{\zeta}' \rangle \mathbin{/} u_{\infty}^2$", 'interpreter', 'latex', 'fontsize', titleFontSize)
+% title("-$\langle u_{\xi}' u_{\zeta}' \rangle \mathbin{/} u_{\infty}^2$", 'interpreter', 'latex', 'fontsize', titleFontSize)
 hold on
 
 % Load velocities
@@ -357,14 +357,18 @@ clim([cmin, cmax])
 C = colorbar;
 C.Label.Interpreter = 'latex';
 C.Label.FontSize = colorbar_fontsize;
+C.Label.String = "$- \langle u' v' \rangle \mathbin{/} u_{\infty}^2$";
 C.TickLabelInterpreter = 'latex';
 C.Ruler.Exponent = -3;
 C.Ruler.TickLabelFormat = '%2.0f';
+
 
 % Turn off the y-axis
 ax = gca;
 ax.YAxis.Visible = 'off';
 
+
+addPanelLabels(h, {'a', 'b'}, 'FontSize', 10, 'Offset', [-0.1, 1.15])
 
 linkaxes(h, 'xy')
 ylim([ymin, ymax])

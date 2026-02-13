@@ -537,7 +537,7 @@ ylim([-2E-3 * 1E3, 0.025 * 1E3])
 yticks(0:10:30)
 xlim([0, 1])
 ax = gca;
-ax.XAxis.Visible = 'off';
+ax.XTickLabel = [];
 
 % Make y axis easier to read
 
