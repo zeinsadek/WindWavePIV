@@ -6,11 +6,12 @@ clc; clear; close all
 addpath('/Users/zeinsadek/Documents/MATLAB/colormaps')
 addpath('/Users/zeinsadek/Desktop/Experiments/PIV/Processing/WindWave/WindWave_Functions')
 addpath('/Users/zeinsadek/Desktop/Experiments/PIV/Processing/WindWave/WindWave_Functions/Inpaint_nans/Inpaint_nans')
+addpath('/Users/zeinsadek/Documents/MATLAB/colormaps/slanCM')
 
 % Paths
 clc; clear; close all;
 project_path = "/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV";
-fig_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test6';
+fig_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test7';
 curvilinear_path = fullfile(project_path, 'curvilinear_new');
 cartesian_path = fullfile(project_path, 'means');
 data_path = fullfile(project_path, 'data');
@@ -122,26 +123,30 @@ u_normal  = -(u_interp .* zeta_hat_x + v_interp .* zeta_hat_y);
 wave_transparency = 0.25;
 
 % Plot details
-gridLineWidth = 0.5;
 linewidth = 1.5;
 gridStep = 10;
 levels = 200;
-line_trans = 0.25;
+
+black_trans = 1;
+white_trans = 0;
+black_color = [0.6, 0.6, 0.6];
+gridLineWidth = 0.5;
+white_multiplier = 4;
 
 tickFontSize = 8;
 labelFontSize = 10;
 colorbarFontSize = 10;
 
-color_map = 'sky';
-color_lower = 0.5;
+color_map = 'plasma';
+color_lower = 0.4;
 color_upper = 1;
 
 
 %%% JFM MAX WIDTH: 13 CM
 
 clc; close all;
-totalFigure = figure('color', 'white', 'units', 'centimeters', 'position', [10,10,11,5]);
-t = tiledlayout(1,2, 'TileSpacing', 'compact', 'padding', 'compact');
+totalFigure = figure('color', 'white', 'units', 'centimeters', 'position', [10,10,11,5.5]);
+t = tiledlayout(1,2, 'TileSpacing', 'compact', 'padding', 'tight');
 
 %%% Cartesian
 h(1) = nexttile;
@@ -151,21 +156,33 @@ hold on
 
 % Velocity
 contourf(X, Y, u_data / u_inf, levels, 'linestyle', 'none')
-% Vertical lines
+
+% % Vertical lines
+% Layer 2: White halo lines
 for i = 1:gridStep:rows
-    P = plot(X_grid(:,i), y, 'color', 'black', 'linewidth', gridLineWidth);
-    P.Color(4) = 0.5;
+    P1 = plot(X_grid(:,i), y, 'color', 'white', 'linewidth', white_multiplier * gridLineWidth);
+    P1.Color(4) = white_trans;
 end
-% Horizontal lines
-for i = 1:gridStep:rows
-    P = plot(x, Y_grid(i,:), 'color', 'black', 'linewidth', gridLineWidth);
-    P.Color(4) = line_trans;
+for i = 3:gridStep:rows
+    P1 = plot(x, Y_grid(i,:), 'color', 'white', 'linewidth', white_multiplier * gridLineWidth);
+    P1.Color(4) = white_trans;
 end
 
+% Layer 3: Black lines on top of white
+for i = 1:gridStep:rows
+    P2 = plot(X_grid(:,i), y, 'color', black_color, 'linewidth', gridLineWidth);
+    P2.Color(4) = black_trans;
+end
+for i = 3:gridStep:rows
+    P2 = plot(x, Y_grid(i,:), 'color', black_color, 'linewidth', gridLineWidth);
+    P2.Color(4) = black_trans;
+end
+
+
 % Plot waves
-plot(x, crop_wave, 'color', 'red', 'linewidth', linewidth)
+% plot(x, crop_wave, 'color', 'red', 'linewidth', linewidth)
 plot(x, reference_wave, 'color', 'black', 'linewidth', linewidth)
-colormap(color_map)
+colormap(flipud(slanCM(color_map)))
 
 % Shaded region below wave
 hFill = patch( ...
@@ -183,11 +200,16 @@ clim([color_lower, color_upper])
 axis equal
 xlim([0, 235])
 ylim([-25, 200])
-% xticks(0:50:230)
 xticks(0:100:230)
-yticks(-50:50:200)
-
+% yticks(-50:50:200)
+yticks(0:100:200)
 title('$u \mathbin{/} u_{\infty}$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+
+
+
+
+
+
 
 
 %%% Curvilinear
@@ -199,20 +221,31 @@ hold on
 
 % Velocity
 contourf(vertical_lines, horizontal_lines, u_tangent / u_inf, levels, 'linestyle', 'none')
-% Vertical lines
+% % Vertical lines
+% Layer 2: White halo lines
 for i = 1:gridStep:rows
-    P = plot(vertical_lines(:,i), y + 1.05 * reference_wave(i), 'color', 'black', 'linewidth', gridLineWidth);
-    P.Color(4) = 0.5;
+    P1 = plot(vertical_lines(:,i), y + 1.05 * reference_wave(i), 'color', 'white', 'linewidth', white_multiplier * gridLineWidth);
+    P1.Color(4) = white_trans;
 end
-% Horizontal lines
+for i = 3:gridStep:rows
+    P1 = plot(x, horizontal_lines(i,:), 'color', 'white', 'linewidth', white_multiplier * gridLineWidth);
+    P1.Color(4) = white_trans;
+end
+
+% Layer 3: Black lines on top of white
 for i = 1:gridStep:rows
-    P = plot(x, horizontal_lines(i,:), 'color', 'black', 'linewidth', gridLineWidth);
-    P.Color(4) = line_trans;
+    P2 = plot(vertical_lines(:,i), y + 1.05 * reference_wave(i), 'color', black_color, 'linewidth', gridLineWidth);
+    P2.Color(4) = black_trans;
 end
+for i = 3:gridStep:rows
+    P2 = plot(x, horizontal_lines(i,:), 'color', black_color, 'linewidth', gridLineWidth);
+    P2.Color(4) = black_trans;
+end
+
 % Plot waves
-plot(x, crop_wave, 'color', 'red', 'linewidth', linewidth)
+% plot(x, crop_wave, 'color', 'red', 'linewidth', linewidth)
 plot(x, reference_wave, 'color', 'black', 'linewidth', linewidth)
-colormap(color_map)
+colormap(flipud(slanCM(color_map)))
 
 % Shaded region below wave
 hFill = patch( ...
@@ -228,33 +261,35 @@ hold off
 % Colorbarxticks(0:100:230)
 clim([color_lower, color_upper + 0])
 c = colorbar;
-% c.Label.String = '$u \, / \, u_{\infty}$';
 c.Label.Interpreter = 'latex';
 c.TickLabelInterpreter = 'latex';
 c.FontSize = tickFontSize;
 c.Label.FontSize = colorbarFontSize;
-c.Ticks = color_lower:0.1:color_upper + 0.05;
-
+c.Ticks = color_lower:0.2:color_upper + 0.05;
 title('$u_{\xi} \mathbin{/} u_{\infty}$', 'interpreter', 'latex', 'fontsize', labelFontSize)
 
-axis equal
 
+axis equal
 linkaxes(h, 'xy')
 xlim([0, 234])
-ylim([-25, 195])
+ylim([-25, 200])
 xticks(0:100:230)
-yticks(-50:50:200)
+% yticks(-50:50:200)
+yticks(0:100:200)
 xlabel(t, '$x$ [mm]', 'Interpreter','latex', 'FontSize',labelFontSize)
 ylabel(t, '$y$ [mm]', 'Interpreter','latex', 'FontSize',labelFontSize)
 
 % Add (a) (b) labels
-addPanelLabels(h, {'a', 'b'},  'Offset', [-0.25, 1.18])
+addPanelLabels(h, {'a', 'b'},  'Offset', [-0.18, 1.2])
+
+
+
 
 % Save figure
-pause(3)
-fig_name = strcat(wind_speed, '_WV', wave, '_CurvilinearCoordinates.pdf');
-exportgraphics(totalFigure, fullfile(fig_folder, fig_name), 'Resolution', 600, 'ContentType', 'image')
-close all 
+% pause(3)
+% fig_name = strcat(wind_speed, '_WV', wave, '_CurvilinearCoordinates.pdf');
+% exportgraphics(totalFigure, fullfile(fig_folder, fig_name), 'Resolution', 600, 'ContentType', 'image')
+% close all 
 
 
 

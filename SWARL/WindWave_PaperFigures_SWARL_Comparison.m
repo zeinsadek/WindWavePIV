@@ -3,25 +3,31 @@ addpath('/Users/zeinsadek/Desktop/Experiments/PIV/Processing/WindWave/SWARL')
 %% ==================== WAVE PARAMETERS FROM TABLE ====================
 wave = struct();
 
+wave_colors = {'#FE6202', '#DC2680', '#775EEF', '#648FFF'};
+
 wave(1).name = '$\lambda_{410}$, $ak_{0.180}$';
 wave(1).lambda = 410.8e-3;   wave(1).a = 11.8e-3;
 wave(1).c = 0.81;            wave(1).ak = 0.180;
-wave(1).color = [0.9 0.1 0.1];  % Red
+% wave(1).color = [0.9 0.1 0.1];  % Red
+wave(1).color = '#FE6202';
 
 wave(2).name = '$\lambda_{313}$, $ak_{0.211}$';
 wave(2).lambda = 313.3e-3;   wave(2).a = 10.5e-3;
 wave(2).c = 0.71;            wave(2).ak = 0.211;
-wave(2).color = [1.0 0.75 0.0]; % Gold/Yellow
+% wave(2).color = [1.0 0.75 0.0]; % Gold/Yellow
+wave(2).color = '#DC2680';
 
 wave(3).name = '$\lambda_{189}$, $ak_{0.305}$';
 wave(3).lambda = 189.6e-3;   wave(3).a = 9.2e-3;
 wave(3).c = 0.57;            wave(3).ak = 0.305;
-wave(3).color = [0.0 0.6 0.2]; % Green
+% wave(3).color = [0.0 0.6 0.2]; % Green
+wave(3).color = '#775EEF';
 
 wave(4).name = '$\lambda_{124}$, $ak_{0.267}$';
 wave(4).lambda = 124.3e-3;   wave(4).a = 5.3e-3;
 wave(4).c = 0.49;            wave(4).ak = 0.267;
-wave(4).color = [0.0 0.8 0.9]; % Cyan
+% wave(4).color = [0.0 0.8 0.9]; % Cyan
+wave(4).color = '#648FFF';
 
 % Velocity markers
 u_inf = [2.42, 3.87, 5.43];  % m/s
@@ -124,14 +130,14 @@ end
 
 
 
-figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test6';
+figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test7';
 
 
 tickFontSize = 8;
 labelFontSize = 10;
 legendFontSize = 8;
 annotationFontSize = 8;
-marker_size = 20;
+marker_size = 25;
 
 markerLinewidth = 1;
 trendLinewidth = 1;

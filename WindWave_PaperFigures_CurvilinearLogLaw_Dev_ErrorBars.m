@@ -1195,7 +1195,7 @@ phase_axes_names = {'$0$', '$\lambda / 4$', '$\lambda / 2$', '$3 \lambda / 4$'};
 % Phase \Delta U^+ vs wave phase
 clc; close all
 figure('color', 'white', 'units', 'centimeters', 'position', [10,10,12,5.5]); %#ok<*NASGU>
-tiledlayout(1,1,'padding', 'loose')
+tiledlayout(1,1,'padding', 'tight')
 ax = nexttile;
 hold on
 % Plot at each phase averaged over all three wind speeds
@@ -1217,11 +1217,33 @@ for p = 1:4
                 'markerfacecolor', wave_colors{w}, ...
                 'HandleVisibility', 'off')
 
+        EB = errorbar(p, mean(tmp, 'all', 'omitnan'), std(tmp, 1, 'all', 'omitnan')/2, ...
+                      'CapSize', 3, 'linewidth', lw/2, ...
+                      'color', wave_colors{w}, 'HandleVisibility', 'off');
+
+        % Set transparency level (0:1)
+        alpha = 0.5;   
+        set([EB.Bar, EB.Line], 'ColorType', 'truecoloralpha', 'ColorData', [EB.Line.ColorData(1:3); 255*alpha])
+        set(EB.Cap, 'EdgeColorType', 'truecoloralpha', 'EdgeColorData', [EB.Cap.EdgeColorData(1:3); 255*alpha])
+        uistack(EB, 'bottom')
+
+
+
         % Start and end plot at wave peak (repeat peak values)
         if p == 1
              scatter(5, mean(tmp, 'all', 'omitnan'), sz, 'filled', ...
                 'markerfacecolor', wave_colors{w}, ...
                 'HandleVisibility', 'off')
+
+             EB = errorbar(5, mean(tmp, 'all', 'omitnan'), std(tmp, 1, 'all', 'omitnan')/2, ...
+                      'CapSize', 3, 'linewidth', lw/2, ...
+                      'color', wave_colors{w}, 'HandleVisibility', 'off');
+
+            % Set transparency level (0:1)
+            alpha = 0.5;   
+            set([EB.Bar, EB.Line], 'ColorType', 'truecoloralpha', 'ColorData', [EB.Line.ColorData(1:3); 255*alpha])
+            set(EB.Cap, 'EdgeColorType', 'truecoloralpha', 'EdgeColorData', [EB.Cap.EdgeColorData(1:3); 255*alpha])
+            uistack(EB, 'bottom')
         end
 
         % Save values to plot as a line
@@ -1319,7 +1341,7 @@ set(tmp, 'TickLabelInterpreter', 'latex', 'fontsize', tickFontSize)
 
 % Save figure
 % pause(3)
-% figure_name = 'LogLaw_Curvilinear_RoughnessFunction_WavePhase.pdf';
+% figure_name = 'LogLaw_Curvilinear_RoughnessFunction_WavePhase_ErrorBars.pdf';
 % exportgraphics(ax, fullfile(figure_folder, 'LogLaw', figure_name), 'Resolution', 600, 'ContentType', 'image'); 
 % close all
 

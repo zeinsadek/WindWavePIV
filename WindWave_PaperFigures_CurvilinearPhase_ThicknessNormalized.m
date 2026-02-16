@@ -3,6 +3,7 @@
 clc; clear; close all
 addpath('/Users/zeinsadek/Documents/MATLAB/colormaps')
 addpath('/Users/zeinsadek/Desktop/Experiments/PIV/Processing/WindWave/WindWave_Functions')
+addpath('/Users/zeinsadek/Documents/MATLAB/colormaps/slanCM')
 
 % Paths
 clc; clear; close all;
@@ -11,7 +12,7 @@ curvilinear_path = fullfile(project_path, 'curvilinear_new');
 wave_parameters = readcell("Offshore_Waves.xlsx");
 
 % Figure Folder
-figure_folder = 'pdf_test6';
+figure_folder = 'pdf_test7';
 
 % Boundary layer detection parameters
 boundary_layer_percent = 0.96;
@@ -256,9 +257,10 @@ linewidth = 1;
 
 colorbar_fontsize = 10;
 tickFontSize = 8;
-% Label + title fontsizes
 labelFontSize = 10;
 
+
+reordered_phases = [1,4,3,2];
 
 wave_transparency = 0.25;
 
@@ -301,15 +303,16 @@ end
 
 % Select appropriate colormap
 if ismember(component, {'u', 'uu', 'vv'})
-    cmap = 'parula';
+    cmap = 'plasma';
 else
     cmap = 'coolwarm';
 end
 
 % Loop through all phases
-for phase = 1:4
+for p = 1:4
 
-    h(phase) = nexttile;
+    phase = reordered_phases(p);
+    h(p) = nexttile;
 
     % Make tick marks look fancy
     ax = gca;
@@ -351,18 +354,18 @@ for phase = 1:4
     ylim([-20 / wave_length, 200 / wave_length])
     xlim([0, 235])
     clim([0.4, 1])
-    title(phase_labels{phase}, 'interpreter', 'latex', 'FontSize', labelFontSize)
+    title(phase_labels{p}, 'interpreter', 'latex', 'FontSize', labelFontSize)
 
-    if phase == 1
+    if p == 1
         ylabel('$y$ [mm]', 'interpreter', 'latex', 'FontSize', labelFontSize)
     end
 
-    if phase ~= 1
+    if p ~= 1
         ax.YTickLabel = [];
     end
 
-    if phase == 4
-        colormap(cmap)
+    if p == 4
+        colormap(flipud(slanCM(cmap)))
         C = colorbar;
         C.Label.String = colorbar_label;
         C.FontSize = tickFontSize;
@@ -389,11 +392,11 @@ linkaxes(h,'xy')
 % xlim([0, max(data.(caze).X(1,:))])
 
 % Save figure
-% pause(3)
-% fig_folder = fullfile('/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new', figure_folder, '/Phase');
-% fig_name = strcat(caze(1:end - 4), '_AllPhases_', component, '.pdf');
-% exportgraphics(totalFigure, fullfile(fig_folder, fig_name), 'Resolution', 600, 'ContentType', 'image')
-% close all 
+pause(3)
+fig_folder = fullfile('/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new', figure_folder, '/Phase');
+fig_name = strcat(caze(1:end - 4), '_AllPhases_', component, '.pdf');
+exportgraphics(totalFigure, fullfile(fig_folder, fig_name), 'Resolution', 600, 'ContentType', 'image')
+close all 
 
 clear ax C clims cmap colorbar_fontsize colorbar_label component global_clim h 
 clear levels linewidth norm phase wave
@@ -403,7 +406,8 @@ clc
 %% Plot single phase all cases
 
 wave_transparency = 0.25;
-wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+% wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+wave_colors = {'#FE6202', '#DC2680', '#775EEF', '#648FFF'};
 
 levels = 100;
 linewidth = 1;
@@ -415,7 +419,7 @@ labelFontSize = 10;
 legendFontSize = 8;
 
 phase = 2;
-component = 'u';
+component = 'vv';
 
 % Convert to curvilinear notation
 if strcmp(component, 'u')
@@ -450,10 +454,10 @@ else
 end
 
 % Select appropriate colormap
-if ismember(component, {'u', 'uu', 'vv'})
-    cmap = 'parula';
+if ismember(component, {'u'})
+    cmap = 'plasma';
 else
-    cmap = 'coolwarm';
+    cmap = 'RdPu';
 end
 
 % Lopp through different waves
@@ -488,9 +492,9 @@ for c = 1:length(cazes)
 
     % Plot line of constant \xi
     index = round(size(tmp,2)/2);
-    P = plot(data.(caze).phase(phase).vertical_lines(:, index) / wave_length, data.(caze).Y(:,1) / wave_length, ...
-             'color', 'black', 'linestyle', ':', 'linewidth', linewidth, 'HandleVisibility', 'off');
-    P.Color(4) = 0.5;
+    % P = plot(data.(caze).phase(phase).vertical_lines(:, index) / wave_length, data.(caze).Y(:,1) / wave_length, ...
+    %          'color', 'black', 'linestyle', ':', 'linewidth', linewidth, 'HandleVisibility', 'off');
+    % P.Color(4) = 0.5;
 
     % Plot wave crop
     % plot(data.(caze).X(1,:) / wave_length, data.(caze).phase(phase).max_wave_profile / wave_length, 'linewidth', linewidth, 'color', 'red')
@@ -551,7 +555,15 @@ for c = 1:length(cazes)
     end
 
     if c == 4
-        colormap(cmap)
+
+        if ismember(component, {'u'})
+            colormap(flipud(slanCM(cmap)))
+        else
+            colormap(slanCM(cmap))
+        end
+
+        % colormap(slanCM(cmap))
+
         C = colorbar;
         C.Label.String = colorbar_label;
         C.FontSize = tickFontSize;
@@ -569,8 +581,7 @@ for c = 1:length(cazes)
         clim([0.4, 1])
         C.Ticks = 0.2:0.2:1;
     elseif strcmp(component, 'uv')
-        % clim([-10E-3, 0])
-        clim([0, 10E-3])
+        clim([0, 9E-3])
     elseif strcmp(component, 'vv')
         clim([0, 12E-3])
     end
@@ -649,8 +660,7 @@ for c = 1:length(cazes)
 end
 hold off
 if strcmp(component, 'uv')
-    % ylim([-10E-3, 0])
-    ylim([0, 10E-3])
+    ylim([0, 9E-3])
 end
 
 xlabel('$\zeta \mathbin{/} \delta$', 'interpreter', 'latex', 'FontSize', labelFontSize)
@@ -672,8 +682,10 @@ if strcmp(component, 'u')
     loc = 'southeast';
 elseif strcmp(component, 'vv')
     loc = 'northeast';
+elseif strcmp(component, 'uu')
+    loc = 'northeast';
 elseif strcmp(component, 'uv')
-    loc = 'southeast';
+    loc = 'northeast';
 end
 
 
@@ -697,11 +709,11 @@ addPanelLabelsFixed(totalFigure, [h(1), ax_profiles], {'a','b'}, ...
 
 
 % Save figure
-% pause(3)
-% fig_folder = fullfile('/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/', figure_folder, 'Phase');
-% fig_name = strcat(wind_speed, '_Phase', num2str(phase), '_', component, '_ThicknessScaled.pdf');
-% exportgraphics(totalFigure, fullfile(fig_folder, fig_name), 'Resolution', 600, 'ContentType', 'image')
-% close all 
+pause(3)
+fig_folder = fullfile('/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/', figure_folder, 'Phase');
+fig_name = strcat(wind_speed, '_Phase', num2str(phase), '_', component, '_ThicknessScaled.pdf');
+exportgraphics(totalFigure, fullfile(fig_folder, fig_name), 'Resolution', 600, 'ContentType', 'image')
+close all 
 
 
 clear ax C caze clims cmap colorbar_fontsize colorbar_label component global_clim h 

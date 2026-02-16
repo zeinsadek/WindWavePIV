@@ -22,7 +22,7 @@ WVs = {'A', 'B', 'C', 'D'};
 MN_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/means/';
 
 % Save folder
-fig_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test6';
+fig_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test7';
 
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -60,12 +60,19 @@ clear caze i no_wave_case s speed
 
 caze = 'WT4_WVC_AG0';
 
-linewidth = 1;
+reordered_phases = [1,4,3,2];
 
 % Colors
-reference_color = 'green';
-average_color = 'green';
-max_color = 'red';
+reference_color = '#213574';
+max_color = '#C48C37';
+% average_color = 'green';
+
+inst_alpha = 0.01;
+inst_color = 'black';
+inst_linewidth = 0.5;
+skip = 2;
+
+linewidth = 1.75;
 
 % Plot fontsizes
 tickFontSize = 8;
@@ -85,18 +92,20 @@ phase_titles = {'$\varphi = 0$',...
 % Plot
 clc; close all
 totalFigure = figure('color', 'white', 'units', 'centimeters', 'position', [10, 10, 13, 6.0]);
-t = tiledlayout(2, 2, "TileSpacing", "tight", "Padding", "tight");
+t = tiledlayout(2, 2, "TileSpacing", "tight", "Padding", "compact");
 
 for p = 1:4
     
+    phase = reordered_phases(p);
+
     % Load data
-    waves = MN_Waves.(caze).phase(p).waves;
-    reference = MN_Waves.(caze).phase(p).reference_wave;
-    max_wave = MN_Waves.(caze).phase(p).max_wave_profile;
+    waves = MN_Waves.(caze).phase(phase).waves;
+    reference = MN_Waves.(caze).phase(phase).reference_wave;
+    max_wave = MN_Waves.(caze).phase(phase).max_wave_profile;
     x = MN_Waves.(caze).X(1,:);
     [num_waves, ~] = size(waves);
 
-    fprintf('Phase %1.0f\n', p)
+    fprintf('Phase %1.0f\n', phase)
     fprintf('# Images = %4.0f\n\n', num_waves)
 
     % Plot
@@ -106,12 +115,14 @@ for p = 1:4
 
     hold on
     % Plot all instantaneous wave profiles
-    for i = 1:num_waves
-        plt = plot(x, imresize(waves(i,:), size(x)), 'color', 'black', 'linewidth', 0.1, "HandleVisibility", "off");
-        plt.Color(4) = 0.1;
+    for i = 1:skip:num_waves
+        plt = plot(x, imresize(waves(i,:), size(x)), 'color', inst_color, 'linewidth', inst_linewidth, "HandleVisibility", "off");
+        plt.Color(4) = inst_alpha;
     end
 
     % Plot reference wave profile
+    % P = plot(x, reference, 'color', 'white', 'linewidth', 4 * linewidth, "HandleVisibility", "off");
+    % P.Color(4) = 0.5;
     plot(x, reference, 'color', reference_color, 'linewidth', linewidth, "HandleVisibility", "off")
 
     % Plot max wave profile
@@ -120,7 +131,8 @@ for p = 1:4
 
     % Make legend in specific order
     % Add legend entry for instantaneous profiles
-    plot(nan, nan, 'color', 'black', 'linewidth', 1, 'DisplayName', '$\eta_{i}$')
+    P  = plot(nan, nan, 'color', 'black', 'linewidth', 1, 'DisplayName', '$\eta_{i}$');
+    P.Color(4) = 0.5;
     % Add legend entry for reference profiles
     plot(nan, nan, 'color', reference_color, 'linewidth', 1, "DisplayName", "$\eta$")
     % Add legend entry for max profiles
@@ -129,7 +141,7 @@ for p = 1:4
     
     axis equal
     xlim([0, range])
-    ylim([-30, 30])
+    ylim([-20, 20])
     yticks(-20:20:20)
     title(phase_titles{p}, 'interpreter', 'latex', 'FontSize', titleFontSize)
 
@@ -167,6 +179,10 @@ xlabel(t, '$x$ [mm]', 'Interpreter', 'latex', 'FontSize', labelFontSize)
 % fig_name = strcat(caze, '_PhaseAverageWaves.pdf');
 % exportgraphics(totalFigure, fullfile(fig_folder, fig_name), 'Resolution', 600, 'ContentType', 'image')
 % close all 
+
+
+
+
 
 
 

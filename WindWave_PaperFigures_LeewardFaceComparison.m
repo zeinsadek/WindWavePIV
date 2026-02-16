@@ -241,14 +241,14 @@ vetical_crop_shift = 0;
 % Y and color limits
 ymin = -20;
 ymax = 120;
-cmax = 7E-3;
+cmax = 9E-3;
 cmin = 0;
 
 
 % Plotting
 clc; close all
 figure('color', 'white', 'units', 'centimeters', 'Position', [10,10,13,5])
-t = tiledlayout(1, 2, 'padding', 'tight', 'TileSpacing', 'compact');
+t = tiledlayout(1, 2, 'padding', 'tight', 'TileSpacing', 'tight');
 
 %%% Cartesian
 h(1) = nexttile(1);

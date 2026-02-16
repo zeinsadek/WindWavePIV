@@ -10,7 +10,7 @@ curvilinear_path = fullfile(project_path, 'curvilinear_new');
 means_path = fullfile(project_path, 'means');
 wave_parameters = readcell("Offshore_Waves.xlsx");
 
-figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test6';
+figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test7';
 
 % Boundary layer detection parameters
 boundary_layer_percent = 0.96;
@@ -30,7 +30,8 @@ smooth_kernel = 9;
 % Loop through all waves and wind speeds
 wind_speeds = {'WT4', 'WT6', 'WT8'};
 waves = {'A', 'B', 'C', 'D'};
-wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+% wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+wave_colors = {'#FE6202', '#DC2680', '#775EEF', '#648FFF'};
 line_styles = {'-.', '--', '-'};
 lw = 1;
 alpha = 1.0;
@@ -1046,11 +1047,11 @@ addPanelLabelsFixed(ax, [all_profiles_tile, h], {'a', 'b', 'c'}, 'Fontsize', 10,
 
 
 % Save figure
-% pause(3)
-% figure_name = 'CollapsedProfiles_CurvilinearNormalizedDeficit_vs_Collapsed_With_Profiles.pdf';
-% exportgraphics(tile, fullfile(figure_folder, 'Collapse', figure_name), 'Resolution', 600, 'ContentType', 'image'); 
-% close all
-% clc;
+pause(3)
+figure_name = 'CollapsedProfiles_CurvilinearNormalizedDeficit_vs_Collapsed_With_Profiles.pdf';
+exportgraphics(tile, fullfile(figure_folder, 'Collapse', figure_name), 'Resolution', 600, 'ContentType', 'image'); 
+close all
+clc;
 
 
 

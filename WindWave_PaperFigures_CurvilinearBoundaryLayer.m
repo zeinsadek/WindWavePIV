@@ -9,7 +9,7 @@ project_path = "/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV";
 curvilinear_path = fullfile(project_path, 'curvilinear_new');
 wave_parameters = readcell("Offshore_Waves.xlsx");
 
-figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test6';
+figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test7';
 
 
 % Boundary layer detection parameters
@@ -227,7 +227,8 @@ clc;
 
 % Quantities to be looped
 parameters = {'thickness', 'displacement', 'momentum', 'shape'};
-wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+% wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+wave_colors = {'#FE6202', '#DC2680', '#775EEF', '#648FFF'};
 % versions = {'filtered', 'fitted'};
 versions = {'filtered'};
 

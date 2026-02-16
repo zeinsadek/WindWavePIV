@@ -11,9 +11,10 @@ curvilinear_path = fullfile(project_path, 'curvilinear_new');
 waves = {'A', 'B', 'C', 'D'};
 wind_speeds = {'WT4', 'WT6', 'WT8'};
 
-wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+% wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+wave_colors = {'#FE6202', '#DC2680', '#775EEF', '#648FFF'};
 
-figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test6';
+figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test7';
 
 % Approximate wavelengths in mm for labeling plots
 wavelength_names.A = '410';
@@ -206,7 +207,8 @@ legendFontSize = 8;
 titleFontSize = 10;
 
 phase = 2;
-wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+% wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+wave_colors = {'#FE6202', '#DC2680', '#775EEF', '#648FFF'};
 linestyles = {'-.', '--', '-'};
 lw = 1;
 buff = 5;

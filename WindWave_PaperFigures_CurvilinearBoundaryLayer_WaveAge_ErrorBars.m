@@ -682,6 +682,7 @@ for w = 1:length(waves)
     % Temporary structures
     tmpX = nan(1,3);
     tmpY = nan(1,3);
+    % tmpSTD = nan(1,3);
     tmpY_max = nan(1,3);
     tmpY_min = nan(1,3);
 
@@ -721,7 +722,19 @@ for w = 1:length(waves)
         % Save to plot line
         tmpX(s) = wave_age;
         tmpY(s) = mean(tmp, 'all', 'omitnan');
+        % tmpSTD(s) = std(tmp, 1, 'all', 'omitnan');
 
+        EB = errorbar(wave_age, mean(tmp, 'all', 'omitnan'), std(tmp, 1, 'all', 'omitnan')/2, ...
+                      'CapSize', 3, 'linewidth', lw/2, ...
+                      'color', wave_colors{w}, 'HandleVisibility', 'off');
+
+        % Set transparency level (0:1)
+        alpha = 0.5;   
+        % Set transparency (undocumented)
+        set([EB.Bar, EB.Line], 'ColorType', 'truecoloralpha', 'ColorData', [EB.Line.ColorData(1:3); 255*alpha])
+        set(EB.Cap, 'EdgeColorType', 'truecoloralpha', 'EdgeColorData', [EB.Cap.EdgeColorData(1:3); 255*alpha])
+
+        uistack(EB, 'bottom')
         tmpY_max(s) = max(tmp);
         tmpY_min(s) = min(tmp);
     end
@@ -738,15 +751,6 @@ for w = 1:length(waves)
     'LineStyle','none', ...
     'DisplayName',label);
 
-    % Shaded region
-    % hFill = patch( ...
-    % [tmpX, fliplr(tmpX)], ...
-    % [tmpY_max, fliplr(tmpY_min)], ...
-    % hex2rgb(wave_colors{w}), ...
-    % 'FaceAlpha', 0.15, ...        % transparency
-    % 'EdgeColor', 'none', ...      % no outline
-    % 'HandleVisibility', 'off');   % keep legend clean
-    % uistack(hFill, 'bottom')
 end
 
 % Add legend for markers
@@ -792,7 +796,7 @@ ylabel('$\overline{\delta}_{\varphi}$ [m]', 'interpreter', 'latex', 'fontsize', 
 
 % Save figure
 % pause(3)
-% figure_name = 'BoundaryLayer_Curvilinear_WaveAge.pdf';
+% figure_name = 'BoundaryLayer_Curvilinear_WaveAge_ErrorBars.pdf';
 % exportgraphics(ax, fullfile(figure_folder, 'BoundaryLayer', figure_name), 'Resolution', 600, 'ContentType', 'image');
 % close all
 % clc; fprintf('Generated figure: %s\n\n', figure_name)

@@ -15,7 +15,7 @@ wind_speeds = {'WT4', 'WT6', 'WT8'};
 
 wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
 
-figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test6';
+figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test7';
 
 % Approximate wavelengths in mm for labeling plots
 wavelength_names.A = '410';
@@ -462,9 +462,13 @@ wave_transparency = 0.25;
 
 
 % Colors
-phase_2_color = '#FF8552';
-phase_4_color = '#78CAD2';
-phase_4_shifted_color = '#094074';
+% phase_2_color = '#FF8552';
+% phase_4_color = '#78CAD2';
+% phase_4_shifted_color = '#094074';
+
+phase_2_color = '#6E6E6E';
+phase_4_color = '#82B4AF';
+phase_4_shifted_color = '#144B55';
 
 % Fontsizes
 tickFontSize = 8;
@@ -527,7 +531,7 @@ hFill = patch( ...
 uistack(hFill, 'bottom')
 
 % Plot vetical line
-plot([0.5, 0.5], [-10, 1E6], 'color', 'black', 'linewidth', linewidth)
+plot([0.5, 0.5], [-10, 1E6], 'color', 'black', 'linewidth', 0.5)
 
 % Plot details
 hold off
@@ -603,7 +607,7 @@ hFill = patch( ...
 uistack(hFill, 'bottom')
 
 % Plot vetical line
-plot([0.5, 0.5], [0, 1E6], 'color', 'black', 'linewidth', linewidth)
+plot([0.5, 0.5], [0, 1E6], 'color', 'black', 'linewidth', 0.5)
 
 % Plot details
 hold off
@@ -645,35 +649,35 @@ set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
 hold on
 
 % Plot first phase
-scatter(phase_2_Re_theta, phase_2_cf * 1E3, sz, 'filled', ...
-        'MarkerFaceColor', phase_2_color, 'HandleVisibility', 'off')
+% scatter(phase_2_Re_theta, phase_2_cf * 1E3, sz, 'filled', ...
+%         'MarkerFaceColor', phase_2_color, 'HandleVisibility', 'off')
 plot(phase_2_Re_theta, phase_2_cf * 1E3, 'Color', phase_2_color, ...
-     'linewidth', linewidth, 'displayname', '$\varphi = \lambda/4$')
+     'linewidth', 1.5*linewidth, 'displayname', '$\varphi = 3 \lambda/4$')
 
 % Plot raw phase
-scatter(phase_4_Re_theta, phase_4_cf * 1E3, sz, 'filled', ...
-        'MarkerFaceColor', phase_4_color, 'HandleVisibility', 'off')
+% scatter(phase_4_Re_theta, phase_4_cf * 1E3, sz, 'filled', ...
+%         'MarkerFaceColor', phase_4_color, 'HandleVisibility', 'off')
 P = plot(phase_4_Re_theta, phase_4_cf * 1E3, 'Color', phase_4_color, ...
-         'linewidth', linewidth, 'displayname', '$\varphi = 3 \lambda/4$');
+         'linewidth', linewidth, 'displayname', '$\varphi = \lambda/4$');
 
 
 % Plot shifted phase
-scatter(phase_4_Re_theta_shifted, phase_4_cf_shifted * 1E3, sz, 'filled', ...
-        'MarkerFaceColor', phase_4_shifted_color', 'HandleVisibility', 'off')
+% scatter(phase_4_Re_theta_shifted, phase_4_cf_shifted * 1E3, sz, 'filled', ...
+%         'MarkerFaceColor', phase_4_shifted_color', 'HandleVisibility', 'off')
 plot(phase_4_Re_theta_shifted, phase_4_cf_shifted * 1E3, 'Color', phase_4_shifted_color', ...
-     'linewidth', linewidth, 'displayname', '$\varphi = 3 \lambda/4 + \delta$')
+     'linewidth', 1.5*linewidth, 'displayname', '$\varphi = \lambda/4$ (aligned)')
 
 
 % Mark the starting point
-scatter(phase_2_Re_theta(1), phase_2_cf(1) * 1E3, 2*sz, 'square', 'filled', 'MarkerFaceColor', 'white', ...
+scatter(phase_2_Re_theta(1), phase_2_cf(1) * 1E3, 3*sz, 'square', 'filled', 'MarkerFaceColor', 'white', ...
         'MarkerEdgeColor', 'black', 'LineWidth', linewidth, 'HandleVisibility', 'off')
 
 % Mark the crest
-scatter(phase_2_Re_theta(end), phase_2_cf(end) * 1E3, 2*sz, 'o', 'filled', 'MarkerFaceColor', 'white', ...
+scatter(phase_2_Re_theta(end), phase_2_cf(end) * 1E3, 3*sz, 'o', 'filled', 'MarkerFaceColor', 'white', ...
         'MarkerEdgeColor', 'black', 'LineWidth', linewidth, 'HandleVisibility', 'off')
 
 % Mark the ending point
-scatter(phase_4_Re_theta_shifted(end), phase_4_cf_shifted(end) * 1E3, 2*sz, 'diamond', 'filled', 'MarkerFaceColor', 'white', ...
+scatter(phase_4_Re_theta_shifted(end), phase_4_cf_shifted(end) * 1E3, 3*sz, 'diamond', 'filled', 'MarkerFaceColor', 'white', ...
         'MarkerEdgeColor', 'black', 'LineWidth', linewidth, 'HandleVisibility', 'off')
 
 

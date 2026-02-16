@@ -11,7 +11,7 @@ addpath('/Users/zeinsadek/Documents/MATLAB/colormaps/slanCM')
 % Paths
 clc; clear; close all;
 project_path = "/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV";
-figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test6';
+figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test7';
 curvilinear_path = fullfile(project_path, 'curvilinear_new');
 
 % Cases

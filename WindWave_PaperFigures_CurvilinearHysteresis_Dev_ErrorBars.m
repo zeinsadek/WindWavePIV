@@ -15,7 +15,7 @@ wind_speeds = {'WT4', 'WT6', 'WT8'};
 
 wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
 
-figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test6';
+figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test7';
 
 % Approximate wavelengths in mm for labeling plots
 wavelength_names.A = '410';
@@ -429,8 +429,8 @@ for phase = 1:2:3
         color = 'blue';
     end
 
-    plot(Re_theta, cf, 'linewidth', 1, 'color', color)
-    scatter(Re_theta, cf, 40, 'filled', 'MarkerFaceColor', color)
+    plot(Re_theta, cf, 'linewidth', 1, 'color', 'red')
+    scatter(Re_theta, cf, 40, 'filled', 'MarkerFaceColor', 'red')
 
 end
 hold off
@@ -1833,7 +1833,8 @@ labelFontSize = 10;
 legendFontSize = 8;
 
 clc; close all
-wind_speed_colors = {'#0075F2', '#FF8C42', '#D30C7B'};
+
+wind_speed_colors = {'#5EC962', '#21918C', '#3B528B'};
 
 % Wave markers
 wave_markers.('A') = '^';
@@ -1841,20 +1842,15 @@ wave_markers.('B') = 'square';
 wave_markers.('C') = 'diamond';
 wave_markers.('D') = 'o';
 
+linewidth = 1;
+fitLinewidth = 1;
+mean_sz = 5;
 
-uncertaintyTrans = 0.3;
-mean_sz = 20;
-inst_sz = 15;
-
-
-% Range of Cf vs steepness
+% =====================================================================
+% SUBPLOT (a): Range of Cf vs steepness
+% =====================================================================
 ax = figure('color', 'white', 'units', 'centimeters', 'position', [10,10,13,5]);
 t = tiledlayout(1,3, 'padding', 'tight', 'TileSpacing', 'loose');
-
-
-
-linewidth = 1.5;
-fitLinewidth = 1;
 
 h(1) = nexttile;
 hold on
@@ -1864,29 +1860,24 @@ all_steepness = [];
 all_cf        = [];
 
 for s = 1:3
-    tmpX = nan(1, length(waves));
-    tmpY = nan(1, length(waves));
-
+    tmpX  = nan(1, length(waves));
+    tmpY1 = nan(1, length(waves));
+    tmpY2 = nan(1, length(waves));
     steepness_missing = NaN;
 
     for w = 1:length(waves)
-
         wave = waves{w};
         wind_speed = wind_speeds{s};
 
-        if ismember(wind_speed(end), {'4'})
-            u_inf = 2.4181;
-        elseif ismember(wind_speed(end), {'6'})
-            u_inf = 3.8709;
-        elseif ismember(wind_speed(end), {'8'})
-            u_inf = 5.4289;
+        if ismember(wind_speed(end), {'4'}),     u_inf = 2.4181;
+        elseif ismember(wind_speed(end), {'6'}), u_inf = 3.8709;
+        elseif ismember(wind_speed(end), {'8'}), u_inf = 5.4289;
         end
 
         wavelength = wavelengths.(wave);
         amplitude  = amplitudes.(wave);
         steepness  = (2*pi*amplitude)/wavelength;
 
-        % ---- special missing point ----
         if (s == 3) && (w == 4)
             tmpX(w) = steepness;
             tmpY1(w) = NaN;
@@ -1895,382 +1886,263 @@ for s = 1:3
             continue
         end
 
-        % collect for global fit
         all_steepness(end+1) = steepness;
         all_cf(end+1)        = 1E3 * cf_ranges_24(s,w);
 
-        % scatter (original data)
         vis = 'on';
         if w > 1, vis = 'off'; end
-
-        % Markers based off of wave
-
         label = sprintf('$u_{\\infty} = %1.2f$ m/s', u_inf);
-        % Phase 2 + 4
-        P1 = scatter(steepness, 1E3 * cf_ranges_24(s,w), inst_sz, wave_markers.(wave), 'filled', ...
-            'MarkerFaceColor', wind_speed_colors{s}, ...
-            'HandleVisibility', vis, ...
-            'DisplayName', label, ...
-            'MarkerFaceAlpha', uncertaintyTrans);
 
-       % Phase 1 + 3
-        P2 = scatter(steepness, 1E3 * cf_ranges_13(s,w), inst_sz, wave_markers.(wave), 'filled', ...
-            'MarkerFaceColor', wind_speed_colors{s}, ...
-            'HandleVisibility', vis, ...
-            'DisplayName', label, ...
-            'MarkerFaceAlpha', uncertaintyTrans);
+        tmpX(w)  = steepness;
+        tmpY1(w) = 1E3 * cf_ranges_24(s,w);
+        tmpY2(w) = 1E3 * cf_ranges_13(s,w);
 
-        % Mean of phases
-        scatter(steepness, 1E3 * mean([cf_ranges_13(s,w), cf_ranges_24(s,w)], 'all'), 2 * mean_sz, wave_markers.(wave), 'filled', ...
+        y_mean = mean([tmpY1(w), tmpY2(w)]);
+        scatter(steepness, y_mean, 2*mean_sz, wave_markers.(wave), 'filled', ...
             'MarkerFaceColor', wind_speed_colors{s}, ...
             'HandleVisibility', vis, ...
             'DisplayName', label, ...
             'MarkerFaceAlpha', 1)
-
-        tmpX(w) = steepness;
-        tmpY1(w) = 1E3 * cf_ranges_24(s,w);
-        tmpY2(w) = 1E3 * cf_ranges_13(s,w);
-
-        uistack([P1, P2], 'bottom')
     end
 
-    % ---- line plot with interpolation ----
+    % --- Line plot with interpolation ---
     [sortedX, sortIdx] = sort(tmpX, 'ascend');
     sortedY1 = tmpY1(sortIdx);
     sortedY2 = tmpY2(sortIdx);
-
     valid = ~isnan(sortedX);
-    sortedX = sortedX(valid);
+    sortedX  = sortedX(valid);
     sortedY1 = sortedY1(valid);
     sortedY2 = sortedY2(valid);
+    sortedY1 = fillmissing(sortedY1, 'spline', 'SamplePoints', sortedX);
+    sortedY2 = fillmissing(sortedY2, 'spline', 'SamplePoints', sortedX);
+    sortedY  = mean([sortedY1; sortedY2], 1);
 
+    plot(sortedX, sortedY, 'Color', wind_speed_colors{s}, ...
+        'LineWidth', linewidth, 'HandleVisibility', 'off')
 
-    sortedY1 = fillmissing(sortedY1, 'spline', ...
-                        'SamplePoints', sortedX);
-    sortedY2 = fillmissing(sortedY2, 'spline', ...
-                        'SamplePoints', sortedX);
-
-    sortedY = mean([sortedY1; sortedY2], 1);
-
-    plot(sortedX, sortedY, ...
-        'Color', wind_speed_colors{s}, ...
-        'LineWidth', linewidth, ...
-        'HandleVisibility', 'off')
-
-    % ---- plot interpolated scatter point ----
+    % --- Interpolated missing point ---
     if s == 3 && ~isnan(steepness_missing)
         y_interp1 = interp1(sortedX, sortedY1, steepness_missing);
         y_interp2 = interp1(sortedX, sortedY2, steepness_missing);
-
-        P1 = scatter(steepness_missing, y_interp1, inst_sz, ...
+        scatter(steepness_missing, mean([y_interp1, y_interp2]), 2*mean_sz, ...
             'MarkerFaceColor', wind_speed_colors{s}, ...
             'MarkerEdgeColor', 'none', ...
-            'HandleVisibility', 'off', ...
-            'MarkerFaceAlpha', uncertaintyTrans);
+            'HandleVisibility', 'off', 'MarkerFaceAlpha', 1);
+    end
 
-        P2 = scatter(steepness_missing, y_interp2, inst_sz, ...
-            'MarkerFaceColor', wind_speed_colors{s}, ...
-            'MarkerEdgeColor', 'none', ...
-            'HandleVisibility', 'off', ...
-            'MarkerFaceAlpha', uncertaintyTrans);
+    % --- Compute mean absolute half-spread for this wind speed ---
+    valid_w = find(~isnan(tmpY1) & ~isnan(tmpY2));
+    abs_half_spread = mean(abs(tmpY2(valid_w) - tmpY1(valid_w))) / 2;
 
-        scatter(steepness_missing, mean([y_interp1, y_interp2], 'all'), 2 * mean_sz, ...
-            'MarkerFaceColor', wind_speed_colors{s}, ...
-            'MarkerEdgeColor', 'none', ...
-            'HandleVisibility', 'off', ...
-            'MarkerFaceAlpha', 1);
-
-        uistack([P1, P2], 'bottom')
+    % --- Second pass: uniform absolute error bars ---
+    for w = 1:length(waves)
+        if isnan(tmpY1(w)) || isnan(tmpY2(w))
+            if (s == 3) && (w == 4) && ~isnan(steepness_missing)
+                y_m = mean([y_interp1, y_interp2]);
+                EB = errorbar(steepness_missing, y_m, abs_half_spread, abs_half_spread, ...
+                    'LineStyle', 'none', 'Color', wind_speed_colors{s}, ...
+                    'CapSize', 3, 'LineWidth', linewidth/2, 'HandleVisibility', 'off');
+                alpha = 0.5;   
+                set([EB.Bar, EB.Line], 'ColorType', 'truecoloralpha', 'ColorData', [EB.Line.ColorData(1:3); 255*alpha])
+                set(EB.Cap, 'EdgeColorType', 'truecoloralpha', 'EdgeColorData', [EB.Cap.EdgeColorData(1:3); 255*alpha])
+                uistack(EB, 'bottom')
+            end
+            continue
+        end
+        y_m = mean([tmpY1(w), tmpY2(w)]);
+        EB = errorbar(tmpX(w), y_m, abs_half_spread, abs_half_spread, ...
+            'LineStyle', 'none', 'Color', wind_speed_colors{s}, ...
+            'CapSize', 3, 'LineWidth', linewidth/2, 'HandleVisibility', 'off');
+        alpha = 0.5;   
+        set([EB.Bar, EB.Line], 'ColorType', 'truecoloralpha', 'ColorData', [EB.Line.ColorData(1:3); 255*alpha])
+        set(EB.Cap, 'EdgeColorType', 'truecoloralpha', 'EdgeColorData', [EB.Cap.EdgeColorData(1:3); 255*alpha])
+        uistack(EB, 'bottom')
     end
 end
-
-
-
-
-
-
-
 
 % ---- global fit ----
 p    = polyfit(all_steepness, all_cf, 1);
 xfit = linspace(min(sortedX), max(sortedX), 10);
 yfit = polyval(p, xfit);
-% P = plot(xfit, yfit, 'color', 'black', 'LineStyle', '-', 'LineWidth', fitLinewidth, ...
-%          'DisplayName', 'Linear fit (all data)');
-% uistack(P, 'bottom');
-
-
-% Show equation
-m = p(1);
-b = p(2);
-
-exp_m = floor(log10(abs(m)));
-mant_m  = m / 10^exp_m;
-exp_b = floor(log10(abs(b)));
-mant_b  = b / 10^exp_b;
-
+m = p(1); b = p(2);
 R = corrcoef(all_steepness, all_cf);
 R2 = R(1,2)^2;
-eqn = sprintf('$C_f = %.3f\\, ak + %.3f$\\quad \n($R^2 = %.2f$)', m, b, R2);
 
 hold off
-
 axis square
 xlabel('$ak$', 'interpreter', 'latex', 'fontsize', labelFontSize)
 ylabel('$\mathrm{range} \left( C_f \right) \times 10^{3}$', 'interpreter', 'latex', 'fontsize', labelFontSize)
 xlim([0.17, 0.32])
 ylim([0, 14])
 yticks(0:4:16)
-ax = gca;
 
-
-
-
-
-
-
-% Range of Re_{\theta} vs wavelength
+% =====================================================================
+% SUBPLOT (b): Range of Re_theta vs wavelength
+% =====================================================================
 h(2) = nexttile;
 set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
 hold on
 for s = 1:3
+    tmpX  = nan(1, length(waves));
+    tmpY1 = nan(1, length(waves));
+    tmpY2 = nan(1, length(waves));
+
     for w = 1:length(waves)
         wave = waves{w};
         wind_speed = wind_speeds{s};
-    
-        if ismember(wind_speed(end), {'4'})
-            u_inf = 2.4181;
-        elseif ismember(wind_speed(end), {'6'})
-            u_inf = 3.8709;
-        elseif ismember(wind_speed(end), {'8'})
-            u_inf = 5.4289;
+
+        if ismember(wind_speed(end), {'4'}),     u_inf = 2.4181;
+        elseif ismember(wind_speed(end), {'6'}), u_inf = 3.8709;
+        elseif ismember(wind_speed(end), {'8'}), u_inf = 5.4289;
         end
 
-        % Get wavelengths
         wavelength = wavelengths.(wave);
-        amplitude = amplitudes.(wave);
-        steepness = (2 * pi * amplitude) / wavelength;
-
-        % Get mean BL thickness
+        amplitude  = amplitudes.(wave);
         caze = strcat(wind_speed, '_WV', wave, '_AG0');
         mean_BL_thickness = mean_BL_thicknesses.(caze);
+        x_val = wavelength / mean_BL_thickness;
 
+        tmpX(w)  = x_val;
+        tmpY1(w) = Re_theta_ranges_24(s,w);
+        tmpY2(w) = Re_theta_ranges_13(s,w);
 
-        % Save wavelengths to plot a line
-        wvlenths(w) = wavelength / mean_BL_thickness;
-
-        % Plot
-        if w == 100 
-            vis = 'on';
-        else
-            vis = 'off';
-        end
-
+        vis = 'off';
         label = sprintf('$u_{\\infty} = %1.2f$ m/s', u_inf);
-        % Phase 2 + 4
-        P1 = scatter(wavelength / mean_BL_thickness, Re_theta_ranges_24(s,w), inst_sz, wave_markers.(wave), 'filled',...
-                'markerfacecolor', wind_speed_colors{s}, ...
-                'displayname', label, ...
-                'HandleVisibility', vis, ...
-                'MarkerFaceAlpha', uncertaintyTrans);
 
-        % Phase 1 + 3
-        P2 = scatter(wavelength / mean_BL_thickness, Re_theta_ranges_13(s,w), inst_sz, wave_markers.(wave), 'filled', ...
+        y_mean = mean([tmpY1(w), tmpY2(w)]);
+        scatter(x_val, y_mean, 2*mean_sz, wave_markers.(wave), 'filled', ...
             'MarkerFaceColor', wind_speed_colors{s}, ...
-            'HandleVisibility', vis, ...
-            'DisplayName', label, ...
-            'MarkerFaceAlpha', uncertaintyTrans);
-
-        % Mean of phases
-        scatter(wavelength / mean_BL_thickness, mean([Re_theta_ranges_13(s,w), Re_theta_ranges_24(s,w)], 'all'), 2 * mean_sz, wave_markers.(wave), 'filled', ...
-            'MarkerFaceColor',  wind_speed_colors{s}, ...
-            'HandleVisibility', vis, ...
-            'DisplayName', label, ...
-            'MarkerFaceAlpha', 1)
-
-        uistack([P1, P2], 'bottom')
+            'HandleVisibility', vis, 'DisplayName', label, 'MarkerFaceAlpha', 1)
     end
-    [sorted_wavelengths, sortIdx] = sort(wvlenths,'ascend');
-    x = sorted_wavelengths(:);
-    y1 = Re_theta_ranges_24(s, sortIdx).';   % make column
-    y2 = Re_theta_ranges_13(s, sortIdx).';   % make column
-    y = mean([y1, y2], 2, 'omitnan');
-    P = plot(sorted_wavelengths,y, 'color', wind_speed_colors{s}, 'linewidth', linewidth, 'HandleVisibility', 'off');
+
+    [sorted_wavelengths, sortIdx] = sort(tmpX, 'ascend');
+    y1 = tmpY1(sortIdx).';
+    y2 = tmpY2(sortIdx).';
+    y  = mean([y1, y2], 2, 'omitnan');
+    P = plot(sorted_wavelengths, y, 'color', wind_speed_colors{s}, ...
+        'linewidth', linewidth, 'HandleVisibility', 'off');
     uistack(P, 'bottom')
 
+    % --- Compute mean absolute half-spread ---
+    valid_w = find(~isnan(tmpY1) & ~isnan(tmpY2));
+    abs_half_spread = mean(abs(tmpY2(valid_w) - tmpY1(valid_w))) / 2;
 
-    % x = sorted_wavelengths(:);
-    % y = Re_theta_ranges_24(s, sortIdx).';   % make column
-    
-    % Fit y = b*x (through origin)
-    p = polyfit(x,y,1);
-    m = p(1);
-    b = p(2);    
-    
-    % Smooth line for plotting
-    xf = linspace(min(x), max(x), 10).';
-    yf = m * xf + b;
-    
-    % P = plot(xf, yf, '-', 'LineWidth', fitLinewidth, 'Color', 'black', 'HandleVisibility','off');
-    % uistack(P, 'bottom')
-    
-    % After computing b
-    exp10 = floor(log10(abs(m)));
-    mant  = m / 10^exp10;
-    
-    label = sprintf('$\\sim %.2f \\times 10^{%d}\\,\\lambda$', mant, exp10);
+    % --- Uniform absolute error bars ---
+    for w = 1:length(waves)
+        y_m = mean([tmpY1(w), tmpY2(w)]);
+        EB = errorbar(tmpX(w), y_m, abs_half_spread, abs_half_spread, ...
+            'LineStyle', 'none', 'Color', wind_speed_colors{s}, ...
+            'CapSize', 3, 'LineWidth', linewidth/2, 'HandleVisibility', 'off');
+        alpha = 0.5;   
+        set([EB.Bar, EB.Line], 'ColorType', 'truecoloralpha', 'ColorData', [EB.Line.ColorData(1:3); 255*alpha])
+        set(EB.Cap, 'EdgeColorType', 'truecoloralpha', 'EdgeColorData', [EB.Cap.EdgeColorData(1:3); 255*alpha])
+        uistack(EB, 'bottom')
+    end
 end
 hold off
-
 axis square
 xlabel('$\lambda \mathbin{/} \overline{\delta}_{\varphi}$', 'interpreter', 'latex', 'fontsize', labelFontSize)
 ylabel('$\mathrm{range} (Re_\theta)$', 'interpreter', 'latex', 'fontsize', labelFontSize)
 ylim([0, 7000])
 yticks(0:2000:6000)
-% xlim([0.1, 0.45])
 
-
-
-
-
-
-
-
-
-
-% Range of Re_{\theta} vs wavelength
+% =====================================================================
+% SUBPLOT (c): Delta Re_theta vs wavelength
+% =====================================================================
 h(3) = nexttile();
 set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
 hold on
 for s = 1:3
+    tmpX  = nan(1, length(waves));
+    tmpY1 = nan(1, length(waves));
+    tmpY2 = nan(1, length(waves));
+
     for w = 1:length(waves)
         wave = waves{w};
         wind_speed = wind_speeds{s};
-    
-        if ismember(wind_speed(end), {'4'})
-            u_inf = 2.4181;
-        elseif ismember(wind_speed(end), {'6'})
-            u_inf = 3.8709;
-        elseif ismember(wind_speed(end), {'8'})
-            u_inf = 5.4289;
+
+        if ismember(wind_speed(end), {'4'}),     u_inf = 2.4181;
+        elseif ismember(wind_speed(end), {'6'}), u_inf = 3.8709;
+        elseif ismember(wind_speed(end), {'8'}), u_inf = 5.4289;
         end
 
-        % Get wavelengths
         wavelength = wavelengths.(wave);
-        amplitude = amplitudes.(wave);
-        steepness = (2 * pi * amplitude) / wavelength;
-
-        % Get mean BL thickness
+        amplitude  = amplitudes.(wave);
         caze = strcat(wind_speed, '_WV', wave, '_AG0');
-        disp(caze)
         mean_BL_thickness = mean_BL_thicknesses.(caze);
+        x_val = wavelength / mean_BL_thickness;
 
+        tmpX(w)  = x_val;
+        tmpY1(w) = Re_theta_closure_24(s,w);
+        tmpY2(w) = Re_theta_closure_13(s,w);
 
-        % Save wavelengths to plot a line
-        wvlenths(w) = wavelength / mean_BL_thickness;
-
-
-        % Plot
-        if w == 100
-            vis = 'on';
-        else
-            vis = 'off';
-        end
-
+        vis = 'off';
         label = sprintf('$u_{\\infty} = %1.2f$ m/s', u_inf);
-        % Phase 2 + 4
-        P1 = scatter(wavelength / mean_BL_thickness, Re_theta_closure_24(s,w), inst_sz, wave_markers.(wave), 'filled', ...
-                'markerfacecolor', wind_speed_colors{s}, ...
-                'displayname', label, ...
-                'HandleVisibility', vis, ...
-                'MarkerFaceAlpha', uncertaintyTrans);
 
-        % Phase 1 + 3
-        P2 = scatter(wavelength / mean_BL_thickness, Re_theta_closure_13(s,w), inst_sz, wave_markers.(wave), 'filled', ...
+        y_mean = mean([tmpY1(w), tmpY2(w)]);
+        scatter(x_val, y_mean, 2*mean_sz, wave_markers.(wave), 'filled', ...
             'MarkerFaceColor', wind_speed_colors{s}, ...
-            'HandleVisibility', vis, ...
-            'DisplayName', label, ...
-            'MarkerFaceAlpha', uncertaintyTrans);
-
-        % Mean of phases
-        scatter(wavelength / mean_BL_thickness, mean([Re_theta_closure_13(s,w), Re_theta_closure_24(s,w)], 'all'), 2 * mean_sz, wave_markers.(wave), 'filled', ...
-            'MarkerFaceColor', wind_speed_colors{s}, ...
-            'HandleVisibility', vis, ...
-            'DisplayName', label, ...
-            'MarkerFaceAlpha', 1)
-        uistack([P1, P2], 'bottom')
+            'HandleVisibility', vis, 'DisplayName', label, 'MarkerFaceAlpha', 1)
     end
-    [sorted_wavelengths, sortIdx] = sort(wvlenths,'ascend');
-    x = sorted_wavelengths(:);
-    y1 = Re_theta_closure_24(s, sortIdx).';   % make column
-    y2 = Re_theta_closure_13(s, sortIdx).';   % make column
-    y = mean([y1, y2], 2, 'omitnan');
 
-    P = plot(sorted_wavelengths, y, 'color', wind_speed_colors{s}, 'linewidth', linewidth, 'HandleVisibility', 'off');
+    [sorted_wavelengths, sortIdx] = sort(tmpX, 'ascend');
+    y1 = tmpY1(sortIdx).';
+    y2 = tmpY2(sortIdx).';
+    y  = mean([y1, y2], 2, 'omitnan');
+    P = plot(sorted_wavelengths, y, 'color', wind_speed_colors{s}, ...
+        'linewidth', linewidth, 'HandleVisibility', 'off');
     uistack(P, 'bottom')
 
+    % --- Compute mean absolute half-spread ---
+    valid_w = find(~isnan(tmpY1) & ~isnan(tmpY2));
+    abs_half_spread = mean(abs(tmpY2(valid_w) - tmpY1(valid_w))) / 2;
 
-   
-    
-    % Fit y = b*x (through origin)
-    p = polyfit(x,y,1);
-    m = p(1);
-    b = p(2);    
-    
-    % Smooth line for plotting
-    xf = linspace(min(x), max(x), 10).';
-    yf = m * xf + b;
-    
-    % P = plot(xf, yf, '-', 'LineWidth', fitLinewidth, 'Color', 'black', 'HandleVisibility','off');
-    % uistack(P, 'bottom')
-
-    % After computing b
-    exp10 = floor(log10(abs(m)));
-    mant  = m / 10^exp10;
-    
-    label = sprintf('$\\sim %.2f \\times 10^{%d}\\,\\lambda$', mant, exp10);
-
+    % --- Uniform absolute error bars ---
+    for w = 1:length(waves)
+        y_m = mean([tmpY1(w), tmpY2(w)]);
+        EB = errorbar(tmpX(w), y_m, abs_half_spread, abs_half_spread, ...
+            'LineStyle', 'none', 'Color', wind_speed_colors{s}, ...
+            'CapSize', 3, 'LineWidth', linewidth/2, 'HandleVisibility', 'off');
+        alpha = 0.5;   
+        set([EB.Bar, EB.Line], 'ColorType', 'truecoloralpha', 'ColorData', [EB.Line.ColorData(1:3); 255*alpha])
+        set(EB.Cap, 'EdgeColorType', 'truecoloralpha', 'EdgeColorData', [EB.Cap.EdgeColorData(1:3); 255*alpha])
+        uistack(EB, 'bottom')
+    end
 end
 
 % Make legend
 for s = 1:3
     wind_speed = wind_speeds{s};
-    if ismember(wind_speed(end), {'4'})
-        u_inf = 2.4181;
-    elseif ismember(wind_speed(end), {'6'})
-        u_inf = 3.8709;
-    elseif ismember(wind_speed(end), {'8'})
-        u_inf = 5.4289;
+    if ismember(wind_speed(end), {'4'}),     u_inf = 2.4181;
+    elseif ismember(wind_speed(end), {'6'}), u_inf = 3.8709;
+    elseif ismember(wind_speed(end), {'8'}), u_inf = 5.4289;
     end
-
     label = sprintf('$u_{\\infty} = %1.2f$ m/s', u_inf);
     plot(nan, nan, 'linewidth', linewidth, 'color', wind_speed_colors{s}, ...
-            'displayname', label, 'HandleVisibility', 'on')
+        'displayname', label, 'HandleVisibility', 'on')
 end
 
 hold off
-
 axis square
 xlabel('$\lambda \mathbin{/} \overline{\delta}_{\varphi}$', 'interpreter', 'latex', 'fontsize', labelFontSize)
 ylabel('$\Delta {Re}_{\theta}$', 'interpreter', 'latex', 'fontsize', labelFontSize)
 ylim([0, 1800])
 xlim([0.75, 4])
 leg = legend('Orientation', 'horizontal', 'box', 'off', ...
-             'fontsize', legendFontSize, 'interpreter', 'latex');
+    'fontsize', legendFontSize, 'interpreter', 'latex');
 leg.Layout.Tile = 'north';
 leg.IconColumnWidth = 19;
 linkaxes(h(2:3), 'x')
-
-
 
 % Add panel labels
 addPanelLabels(h, {'a', 'b', 'c'}, 'FontSize', 10, 'Offset', [-0.24, 1.15])
 
 
 
+
 % Save figure
 % pause(3)
-% figure_name = 'Hysteresis_RangesClosures_Combined_Uncertainty.pdf';
+% figure_name = 'Hysteresis_RangesClosures_Combined_ErrorBars.pdf';
 % exportgraphics(t, fullfile(figure_folder, 'Hysteresis',  figure_name), 'resolution', 600, 'ContentType', 'image')
 % close all
 

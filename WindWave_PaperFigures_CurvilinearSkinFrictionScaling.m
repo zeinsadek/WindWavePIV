@@ -11,13 +11,14 @@ addpath('/Users/zeinsadek/Documents/MATLAB/colormaps/slanCM')
 % Paths
 clc; clear; close all;
 project_path = "/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV";
-figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test6';
+figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test7';
 curvilinear_path = fullfile(project_path, 'curvilinear_new');
 cartesian_path = fullfile(project_path, 'means');
 
 % Cases
 wind_speeds = {'WT4', 'WT6', 'WT8'};
 waves = {'A', 'B', 'C', 'D'};
+wave_colors = {'#FE6202', '#DC2680', '#775EEF', '#648FFF'};
 
 freestreams.('WT4') = 2.4181;
 freestreams.('WT6') = 3.8709;
@@ -86,7 +87,7 @@ frequencies.B = 2.27;
 frequencies.C = 3;
 frequencies.D = 3.93;
 
-wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+% wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
 
 
 %% Plot no wave uv profiles
@@ -364,6 +365,7 @@ phase_fit_colors = [0.5, 0.5, 0.5;    % Gray for phase 1
 clear h
 
 reordered_phases = [1,4,3,2];
+% reordered_phases = [1,2,3,4];
 
 phase_labels = {'$\varphi = 0$', '$\varphi = \lambda / 4$', ...
                 '$\varphi = \lambda / 2$', '$\varphi = 3 \lambda / 4$'};
@@ -392,7 +394,7 @@ for p = 1:4
     h(p) = nexttile;
     set(h(p), 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
     hold on
-    title(phase_labels{phase}, 'interpreter', 'latex', 'fontsize', labelFontSize)
+    title(phase_labels{p}, 'interpreter', 'latex', 'fontsize', labelFontSize)
     % Plot data points
     for s = 1:length(wind_speeds)
         wind_speed = wind_speeds{s};

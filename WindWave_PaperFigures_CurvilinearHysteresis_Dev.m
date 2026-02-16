@@ -9,13 +9,14 @@ addpath('/Users/zeinsadek/Documents/MATLAB/colormaps/slanCM')
 clc; clear; close all;
 project_path = "/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV";
 means_path = fullfile(project_path, 'means');
-curvilinear_path = fullfile(project_path, 'curvilinear');
+curvilinear_path = fullfile(project_path, 'curvilinear_new');
 waves = {'A', 'B', 'C', 'D'};
 wind_speeds = {'WT4', 'WT6', 'WT8'};
 
-wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+% wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+wave_colors = {'#FE6202', '#DC2680', '#775EEF', '#648FFF'};
 
-figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test6';
+figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test7';
 
 % Approximate wavelengths in mm for labeling plots
 wavelength_names.A = '410';
@@ -858,7 +859,8 @@ hold off
 %% Loop through and plot: Wind speed per subplot NO SCALING
 
 
-wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+% wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+wave_colors = {'#FE6202', '#DC2680', '#775EEF', '#648FFF'};
 % smoothing_kernel = 16;
 
 smoothing_kernel = 16;
@@ -997,7 +999,8 @@ legendFontSize = 8;
 
 linewidth = 1;
 
-wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+% wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+wave_colors = {'#FE6202', '#DC2680', '#775EEF', '#648FFF'};
 
 wind_speeds = {'WT4', 'WT6', 'WT8'};
 waves = {'A', 'B', 'C', 'D'};
