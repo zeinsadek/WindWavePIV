@@ -8,7 +8,7 @@ clc; clear; close all;
 project_path = "/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV";
 means_path = fullfile(project_path, 'means');
 curvilinear_path = fullfile(project_path, 'curvilinear_new');
-wave_parameters = readcell("Offshore_Waves.xlsx");
+wave_parameters = readcell("/Users/zeinsadek/Desktop/Experiments/PIV/Processing/WindWave/Offshore_Waves.xlsx");
 
 figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test7';
 
@@ -853,7 +853,6 @@ titleFontSize = 10;
 % What to plot
 wind_speed = 'WT6';
 phase_names = {'$\varphi = 0$', '$\varphi = \lambda / 4$', '$\varphi = \lambda / 2$', '$\varphi = 3 \lambda / 4$'};
-% wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
 wave_colors = {'#FE6202', '#DC2680', '#775EEF', '#648FFF'};
 lw = 1;
 nu = 1.46E-5;
@@ -887,6 +886,7 @@ for p = 1:4
     hold on
     set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', tickFontSize)
     title(phase_names{p}, 'interpreter', 'latex', 'fontsize', titleFontSize)
+    disp(phase_names{p})
 
     % Smooth wall reference
     plot(smooth_y_plus, smooth_u_plus, 'linestyle', '--', 'HandleVisibility', 'off', 'color', 'black', 'linewidth', 1)
@@ -1033,7 +1033,7 @@ friction_velocity_bar_chart = nan(4,length(waves));
 for p = 1:4
     phase = reordered_phases(p);
     hold on
-    title(phase_names{phase})
+    title(phase_names{p})
     
     for w = 1:length(waves)
         wave = waves{w};
