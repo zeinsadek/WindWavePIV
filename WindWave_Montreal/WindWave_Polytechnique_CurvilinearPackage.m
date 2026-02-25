@@ -1,5 +1,5 @@
 % Wrap up the curvilinear-projected instantaneous and phase averages for
-% Montreal Polytecnique
+% Montreal Polytechnique
 
 
 clc; close all; clear
@@ -20,6 +20,7 @@ data   = data.output;
 waves  = waves.output;
 means  = means.output;
 phases = phases.output;
+clc; fprintf('Data loaded\n\n')
 
 % Get wave parameters
 wave_parameters = readcell("/Users/zeinsadek/Desktop/Experiments/PIV/Processing/WindWave/Offshore_Waves.xlsx");
@@ -29,9 +30,12 @@ frequency       = wave_parameters{find(strcmp(wave_parameters, wave_type) == 1),
 phase_offset    = [0, wavelength/4, wavelength/2, 3*wavelength/4];
 wavenumber      = (2 * pi) / wavelength;
 
-clc; fprintf('Data loaded\n\n')
+% Get freestream
+freestreams.('WT4') = 2.4181;
+freestreams.('WT6') = 3.8709;
+freestreams.('WT8') = 5.4289;
 
-clear wind_speed wave_type
+clear wave_type
 
 
 %% Load relevent data
@@ -629,7 +633,7 @@ end
 
 linkaxes(h, 'xy')
 
-clear phase component 
+clear phase component h
 
 
 %% Collect all useful quantities to save into a matfile
@@ -643,14 +647,25 @@ output.curvilinear_instantaneous = curvilinear_instantaneousProjected;
 output.Cartesian_grid.X = X;
 output.Cartesian_grid.Y = Y;
 output.Cartesian_grid.x = x;
+output.Cartesian_grid.y = y;
 
 % Wave properties
-output.wave_parameters.wavelength_mm = wavelength;
-output.wave_parameters.amplitude_mm = amplitude;
-output.wave_parameters.steepness = (2 * pi * amplitude) / wavelength;
+output.constants.wavelength_mm = wavelength;
+output.constants.amplitude_mm = amplitude;
+output.constants.frequency_hz = frequency;
+output.constants.steepness = (2 * pi * amplitude) / wavelength;
+output.constants.wave_speed = frequency * wavelength * 1E-3;
 
 % Freestream
-% output.
+output.constants.freestream = freestreams.(wind_speed);
 
 
+
+%%% Save to matfile
+save_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/curvilinear_montreal';
+caze_name   = [caze, '_CurvilinearInstantaneous_Polytechnique.mat'];
+clc; fprintf('Saving Matfile...\n')
+pause(3)
+save(fullfile(save_folder, caze_name), 'output', '-v7.3')
+clc; fprintf('Matfile saved!\n')
 
