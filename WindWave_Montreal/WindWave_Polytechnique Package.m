@@ -1,3 +1,5 @@
+% Package that wraps up the cartesian velocities, binned per phase
+
 clc; close all;
 
 caze = 'WT6_WVC_AG0';
