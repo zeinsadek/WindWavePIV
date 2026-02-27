@@ -9,8 +9,8 @@ wind_speed = 'WT6';
 wave_type = 'C';
 caze = [wind_speed, '_WV', wave_type, '_AG0'];
 
-matfile_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/curvilinear_montreal';
-matfile_name   = [caze, '_CurvilinearInstantaneous_Polytechnique.mat'];
+matfile_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/curvilinear_cerrina';
+matfile_name   = [caze, '_CartesianInstantaneous_curvilinearProjected.mat'];
 
 % Load data
 output = load(fullfile(matfile_folder, matfile_name));
@@ -51,8 +51,8 @@ y = output.Cartesian_grid.y;
 
 %% Pull out curvilinear means/instantaneous
 
-curvilinear_means = output.curvilinear_means;
-curvilinear_instantaneous = output.curvilinear_instantaneous;
+Cartesian_means = output.Cartesian_means;
+Cartesian_instantaneous = output.Cartesian_instantaneous;
 
 
 %% Plot curvilinear means
@@ -78,7 +78,7 @@ for c = 1:length(components)
         % Plot quantity
         contourf(curvilinear_grid(phase).vertical_lines, ...
                  curvilinear_grid(phase).horizontal_lines, ...
-                 curvilinear_means(phase).(component), ...
+                 Cartesian_means(phase).(component), ...
                  100, 'linestyle', 'none')
 
         % Plot reference wave profile
@@ -113,15 +113,14 @@ clear phase h c component
 % reference wave profile is also remvoed from both versions.
 
 phase = 2;
-frame = 10;
-
+frame = 1;
 
 % Figure
 clc; close all
 figure('color', 'white')
 tiledlayout(2,2)
 
-fprintf('Phase %1.0f: %4.0f Images\n', phase, curvilinear_instantaneous(phase).num_images)
+fprintf('Phase %1.0f: %4.0f Images\n', phase, Cartesian_instantaneous(phase).num_images)
 
 % Instantaneous cropping
 % Wave-tangent velocity
@@ -129,18 +128,18 @@ h(1) = nexttile;
 hold on
 contourf(curvilinear_grid(phase).vertical_lines, ...
          curvilinear_grid(phase).horizontal_lines, ...
-         curvilinear_instantaneous(phase).instantaneous_crop.u(:,:,frame), ...
+         Cartesian_instantaneous(phase).instantaneous_crop.u(:,:,frame), ...
          100, 'linestyle', 'none')
 
 % Instantaneous wave profile
-plot(x, curvilinear_instantaneous(phase).waves(frame,:), 'linewidth', 2, 'color', 'red')
+plot(x, Cartesian_instantaneous(phase).waves(frame,:), 'linewidth', 2, 'color', 'red')
 
 % Reference wave profile
 plot(x, curvilinear_grid(phase).wave_profile, 'linewidth', 2, 'color', 'black')
 hold off
 axis equal
 colorbar()
-title(sprintf('Wave-tangent velocity:\nInstantaneous surface cropping'))
+title(sprintf('$u$ velocity:\nInstantaneous surface cropping'), 'interpreter', 'latex')
 
 
 % Wave-normal velocity
@@ -148,18 +147,18 @@ h(2) = nexttile;
 hold on
 contourf(curvilinear_grid(phase).vertical_lines, ...
          curvilinear_grid(phase).horizontal_lines, ...
-         curvilinear_instantaneous(phase).instantaneous_crop.v(:,:,frame), ...
+         Cartesian_instantaneous(phase).instantaneous_crop.v(:,:,frame), ...
          100, 'linestyle', 'none')
 
 % Instantaneous wave profile
-plot(x, curvilinear_instantaneous(phase).waves(frame,:), 'linewidth', 2, 'color', 'red')
+plot(x, Cartesian_instantaneous(phase).waves(frame,:), 'linewidth', 2, 'color', 'red')
 
 % Reference wave profile
 plot(x, curvilinear_grid(phase).wave_profile, 'linewidth', 2, 'color', 'black')
 hold off
 axis equal
 colorbar()
-title(sprintf('Wave-normal velocity:\nInstantaneous surface cropping'))
+title(sprintf('$v$ velocity:\nInstantaneous surface cropping'), 'interpreter', 'latex')
 
 
 
@@ -169,11 +168,11 @@ h(3) = nexttile;
 hold on
 contourf(curvilinear_grid(phase).vertical_lines, ...
          curvilinear_grid(phase).horizontal_lines, ...
-         curvilinear_instantaneous(phase).maximum_crop.u(:,:,frame), ...
+         Cartesian_instantaneous(phase).maximum_crop.u(:,:,frame), ...
          100, 'linestyle', 'none')
 
 % Instantaneous wave profile
-plot(x, curvilinear_instantaneous(phase).waves(frame,:), 'linewidth', 2, 'color', 'red')
+plot(x, Cartesian_instantaneous(phase).waves(frame,:), 'linewidth', 2, 'color', 'red')
 
 % Reference wave profile
 plot(x, curvilinear_grid(phase).wave_profile, 'linewidth', 2, 'color', 'black')
@@ -183,7 +182,7 @@ plot(x, curvilinear_grid(phase).max_wave_profile, 'linewidth', 2, 'color', 'blue
 hold off
 axis equal
 colorbar()
-title(sprintf('Wave-tangent velocity:\nMaximum surface cropping'))
+title(sprintf('$u$ velocity:\nMaximum surface cropping'), 'interpreter', 'latex')
 
 
 % Wave-normal velocity
@@ -191,11 +190,11 @@ h(4) = nexttile;
 hold on
 contourf(curvilinear_grid(phase).vertical_lines, ...
          curvilinear_grid(phase).horizontal_lines, ...
-         curvilinear_instantaneous(phase).maximum_crop.v(:,:,frame), ...
+         Cartesian_instantaneous(phase).maximum_crop.v(:,:,frame), ...
          100, 'linestyle', 'none')
 
 % Instantaneous wave profile
-plot(x, curvilinear_instantaneous(phase).waves(frame,:), 'linewidth', 2, 'color', 'red')
+plot(x, Cartesian_instantaneous(phase).waves(frame,:), 'linewidth', 2, 'color', 'red')
 
 % Reference wave profile
 plot(x, curvilinear_grid(phase).wave_profile, 'linewidth', 2, 'color', 'black')
@@ -205,7 +204,7 @@ plot(x, curvilinear_grid(phase).max_wave_profile, 'linewidth', 2, 'color', 'blue
 hold off
 axis equal
 colorbar()
-title(sprintf('Wave-normal velocity:\nMaximum surface cropping'))
+title(sprintf('$v$ velocity:\nMaximum surface cropping'), 'interpreter', 'latex')
 
 
 linkaxes(h, 'xy')
