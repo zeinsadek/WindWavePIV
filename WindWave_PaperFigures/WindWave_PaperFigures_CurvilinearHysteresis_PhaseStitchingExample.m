@@ -74,7 +74,7 @@ for s = 1:length(wind_speeds)
     
         % Wave parameters
         wave_type       = caze(strfind(caze, 'WV') + 2);
-        wave_parameters = readcell("Offshore_Waves.xlsx");
+        wave_parameters = readcell("/Users/zeinsadek/Desktop/Experiments/PIV/Processing/WindWave/Offshore_Waves.xlsx");
         wavelength      = wave_parameters{find(strcmp(wave_parameters, wave_type) == 1), 2};
         amplitude       = wave_parameters{find(strcmp(wave_parameters, wave_type) == 1), 3};
 
@@ -461,14 +461,15 @@ phase_4_cf_shifted = phase_4_cf - phase_4_cf_shift;
 wave_transparency = 0.25;
 
 
-% Colors
-% phase_2_color = '#FF8552';
-% phase_4_color = '#78CAD2';
-% phase_4_shifted_color = '#094074';
+% OG Colors
+phase_2_color = '#FF8552';
+phase_4_color = '#78CAD2';
+phase_4_shifted_color = '#094074';
 
-phase_2_color = '#6E6E6E';
-phase_4_color = '#82B4AF';
-phase_4_shifted_color = '#144B55';
+% blue-grey colors
+% phase_2_color = '#6E6E6E';
+% phase_4_color = '#82B4AF';
+% phase_4_shifted_color = '#144B55';
 
 % Fontsizes
 tickFontSize = 8;
@@ -751,11 +752,11 @@ addPanelLabelsFixed(fullfigure, [ax1, ax2, ax3], {'a', 'b' ,'c'}, 'FontSize', 10
 
 
 % Save figure
-pause(3)
-figure_name = 'HysteresisStitchExamples.pdf';
-exportgraphics(fig, fullfile(figure_folder, 'Hysteresis', figure_name), 'Resolution', 600, 'ContentType', 'image');
-close all
-fprintf('Generated figure: %s\n\n', figure_name)
+% pause(3)
+% figure_name = 'HysteresisStitchExamples_BayoColors.pdf';
+% exportgraphics(fig, fullfile(figure_folder, 'Hysteresis', figure_name), 'Resolution', 600, 'ContentType', 'image');
+% close all
+% fprintf('Generated figure: %s\n\n', figure_name)
 
 
 

@@ -8,7 +8,7 @@ clc; clear; close all;
 project_path = "/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV";
 curvilinear_path = fullfile(project_path, 'curvilinear_new');
 means_path = fullfile(project_path, 'means');
-wave_parameters = readcell("Offshore_Waves.xlsx");
+wave_parameters = readcell("/Users/zeinsadek/Desktop/Experiments/PIV/Processing/WindWave/Offshore_Waves.xlsx");
 
 figure_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/paper_figures/new/pdf_test7';
 
@@ -725,8 +725,9 @@ xlim([-0.05, 0.55])
 xticks(0:0.2:0.5)
 yticks(0:0.5:2)
 ylabel('$\zeta \mathbin{/} \delta$', 'interpreter', 'latex', 'fontsize', labelFontSize)
-text(annotation_x, annotation_y, '$\frac{u_{\infty} - u}{u_{\infty}}$', 'Interpreter', 'latex', ...
-    'Units', 'normalized', 'HorizontalAlignment', 'center', 'fontsize', titleFontSize);
+% text(annotation_x, annotation_y, '$\frac{u_{\infty} - u}{u_{\infty}}$', 'Interpreter', 'latex', ...
+%     'Units', 'normalized', 'HorizontalAlignment', 'center', 'fontsize', titleFontSize);
+xlabel('$(u_{\infty} - u ) \mathbin{/} u_{\infty}$', 'interpreter', 'latex', 'fontsize', labelFontSize)
 
 
 %%% Collapsed Profiles
@@ -1036,8 +1037,9 @@ ylim([-0.1, 2.2])
 xlim([-0.4, 2.7])
 xticks(0:0.75:2.7)
 yticks(0:0.5:2)
-text(annotation_x, annotation_y, '$\frac{u_{\infty} - u}{u_{\infty} \frac{\delta^*}{\delta}}$', 'Interpreter', 'latex', ...
-    'Units', 'normalized', 'HorizontalAlignment', 'center', 'fontsize', titleFontSize);
+% text(annotation_x, annotation_y, '$\frac{u_{\infty} - u}{u_{\infty} \frac{\delta^*}{\delta}}$', 'Interpreter', 'latex', ...
+%     'Units', 'normalized', 'HorizontalAlignment', 'center', 'fontsize', titleFontSize);
+xlabel('$(u_{\infty} - u ) \mathbin{/} ( u_{\infty} \delta^* \mathbin{/} \delta )$', 'interpreter', 'latex', 'fontsize', labelFontSize)
 
 linkaxes(h, 'y')
 ylim([0, 2.3])
