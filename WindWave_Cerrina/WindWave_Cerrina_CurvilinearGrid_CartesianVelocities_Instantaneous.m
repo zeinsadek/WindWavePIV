@@ -4,8 +4,8 @@
 clc; close all; clear
 
 % Get case to process
-wind_speed = 'WT6';
-wave_type = 'C';
+wind_speed = 'WT8';
+wave_type = 'B';
 caze = [wind_speed, '_WV', wave_type, '_AG0'];
 
 % Load all useful data
@@ -607,34 +607,34 @@ clear phase crop_method mean_u mean_v u_flucs v_flucs uu vv uv h tile
 
 %% Plot means and stresses from curvilinear instantaneous to compare
 
-% Component to plot
-component = 'uv';
-
-% Figure
-figure('color', 'white')
-tiledlayout(1,4);
-
-% Loop through phases
-for phase = 1:4
-  
-    h(phase) = nexttile;
-    hold on
-    contourf(curvilinear_mesh(phase).vertical_lines, ...
-             curvilinear_mesh(phase).horizontal_lines, ...
-             Cartesian_meansFromInterpolatedInstantaneous(phase).(component), ...
-             100, 'linestyle', 'none')
-    plot(x, curvilinear_mesh(phase).wave_profile, 'linewidth', 2, 'color', 'black')
-    plot(x, curvilinear_mesh(phase).max_wave_profile, 'linewidth', 2, 'color', 'red')
-    hold off
-    title(sprintf('Phase %1.0f', phase))
-    axis equal
-    colorbar()
-    ylim([-20, 200])
-end
-
-linkaxes(h, 'xy')
-
-clear phase component h
+% % Component to plot
+% component = 'uv';
+% 
+% % Figure
+% figure('color', 'white')
+% tiledlayout(1,4);
+% 
+% % Loop through phases
+% for phase = 1:4
+% 
+%     h(phase) = nexttile;
+%     hold on
+%     contourf(curvilinear_mesh(phase).vertical_lines, ...
+%              curvilinear_mesh(phase).horizontal_lines, ...
+%              Cartesian_meansFromInterpolatedInstantaneous(phase).(component), ...
+%              100, 'linestyle', 'none')
+%     plot(x, curvilinear_mesh(phase).wave_profile, 'linewidth', 2, 'color', 'black')
+%     plot(x, curvilinear_mesh(phase).max_wave_profile, 'linewidth', 2, 'color', 'red')
+%     hold off
+%     title(sprintf('Phase %1.0f', phase))
+%     axis equal
+%     colorbar()
+%     ylim([-20, 200])
+% end
+% 
+% linkaxes(h, 'xy')
+% 
+% clear phase component h
 
 
 %% Collect all useful quantities to save into a matfile

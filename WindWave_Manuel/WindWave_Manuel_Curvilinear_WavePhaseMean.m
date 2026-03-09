@@ -16,12 +16,12 @@ curvilinear_path = fullfile(project_path, 'curvilinear_new');
 
 % Cases
 wind_speeds = {'WT4', 'WT6', 'WT8'};
-% waves = {'A', 'B', 'C', 'D'};
-% wave_colors = {'#FE6202', '#DC2680', '#775EEF', '#648FFF'};
+waves = {'A', 'B', 'C', 'D'};
+wave_colors = {'#FE6202', '#DC2680', '#775EEF', '#648FFF'};
 
 % Cases manuel wants
-waves = {'A', 'C'};
-wave_colors = {'#FE6202', '#775EEF'};
+% waves = {'A', 'C'};
+% wave_colors = {'#FE6202', '#775EEF'};
 
 % Freestream velocities
 freestreams.('WT4') = 2.4181;
@@ -144,7 +144,7 @@ threshold.displacement = 0.005;
 threshold.momentum = 0.008;
 
 % Boundary layer detection parameters
-boundary_layer_percent = 0.95;
+boundary_layer_percent = 0.99;
 left_mask = 4E-3;
 right_mask = 234E-3;
 
@@ -824,13 +824,13 @@ output.boundary_layer_thickknesses = integral;
 output.mean_boundary_layer_thickknesses = mean_boundary_layer_thickness;
 
 % Save matfile
-clc; close all
-save_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/manuel';
-filename = 'WindWave_ManuelProfiles.mat';
-fprintf('Saving Matfile...\n')
-pause(3)
-save(fullfile(save_folder, filename), 'output');
-clc; fprintf('Matfile saved!\n')
+% clc; close all
+% save_folder = '/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV/manuel';
+% filename = 'WindWave_ManuelProfiles_AllCases_Delta99.mat';
+% fprintf('Saving Matfile...\n')
+% pause(3)
+% save(fullfile(save_folder, filename), 'output');
+% clc; fprintf('Matfile saved!\n')
 
 
 
