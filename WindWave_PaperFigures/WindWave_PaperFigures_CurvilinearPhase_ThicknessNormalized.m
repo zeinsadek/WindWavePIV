@@ -9,7 +9,7 @@ addpath('/Users/zeinsadek/Documents/MATLAB/colormaps/slanCM')
 clc; clear; close all;
 project_path = "/Users/zeinsadek/Desktop/Experiments/Offshore/wind_wave_PIV";
 curvilinear_path = fullfile(project_path, 'curvilinear_new');
-wave_parameters = readcell("Offshore_Waves.xlsx");
+wave_parameters = readcell("/Users/zeinsadek/Desktop/Experiments/PIV/Processing/WindWave/Offshore_Waves.xlsx");
 
 % Figure Folder
 figure_folder = 'pdf_test7';
@@ -269,8 +269,13 @@ component = 'u';
 caze = strcat(wind_speed, '_WV', wave, '_AG0');
 wave_length = 1;
 
-phase_labels = {'$\varphi = 0$', '$\varphi = \lambda / 4$', ...
-                '$\varphi = \lambda / 2$', '$\varphi = 3 \lambda / 4$'};
+% phase_labels = {'$\varphi = 0$', '$\varphi = \lambda / 4$', ...
+%                 '$\varphi = \lambda / 2$', '$\varphi = 3 \lambda / 4$'};
+
+phase_labels = {'$\varphi = 0$',...
+                '$\varphi = \pi / 2$',...
+                '$\varphi = \pi$',...
+                '$\varphi = 3 \pi / 2$'};
 
 if strcmp(component, 'u')
     labelComponent = "u_{\xi}";

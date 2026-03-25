@@ -567,13 +567,13 @@ hold on
 % xline(0.5, 'color', 'black', 'linestyle', '-', 'linewidth', linewidth, 'HandleVisibility', 'off');
 
 plot((hysteresis(2).x) + 0.25, hysteresis(2).Re_theta, ...
-     'linewidth', linewidth, 'color', phase_2_color, 'displayname', '$\varphi = \lambda/4$')
+     'linewidth', linewidth, 'color', phase_2_color, 'displayname', '$\varphi = \pi/2$')
 
 plot((hysteresis(4).x + 0.5) + 0.25, hysteresis(4).Re_theta, ...
-     'linewidth', linewidth, 'color', phase_4_color, 'linestyle', '-', 'Displayname', '$\varphi = 3 \lambda/4$')
+     'linewidth', linewidth, 'color', phase_4_color, 'linestyle', '-', 'Displayname', '$\varphi = 3 \pi/2$')
 
 plot((hysteresis(4).x + 0.5) + 0.25, phase_4_Re_theta_shifted, ...
-     'linewidth', linewidth, 'color', phase_4_shifted_color', 'Displayname', '$\varphi = 3 \lambda/4 + \delta$')
+     'linewidth', linewidth, 'color', phase_4_shifted_color', 'Displayname', '$\varphi = 3 \pi/2 + \delta$')
 
 % Starting Point
 scatter(0,  hysteresis(2).Re_theta(1), 2*sz, 'square', 'filled', 'MarkerFaceColor', 'white', ...
@@ -653,20 +653,20 @@ hold on
 % scatter(phase_2_Re_theta, phase_2_cf * 1E3, sz, 'filled', ...
 %         'MarkerFaceColor', phase_2_color, 'HandleVisibility', 'off')
 plot(phase_2_Re_theta, phase_2_cf * 1E3, 'Color', phase_2_color, ...
-     'linewidth', 1.5*linewidth, 'displayname', '$\varphi = 3 \lambda/4$')
+     'linewidth', 1.5*linewidth, 'displayname', '$\varphi = 3 \pi/2$')
 
 % Plot raw phase
 % scatter(phase_4_Re_theta, phase_4_cf * 1E3, sz, 'filled', ...
 %         'MarkerFaceColor', phase_4_color, 'HandleVisibility', 'off')
 P = plot(phase_4_Re_theta, phase_4_cf * 1E3, 'Color', phase_4_color, ...
-         'linewidth', linewidth, 'displayname', '$\varphi = \lambda/4$');
+         'linewidth', linewidth, 'displayname', '$\varphi = \pi/2$');
 
 
 % Plot shifted phase
 % scatter(phase_4_Re_theta_shifted, phase_4_cf_shifted * 1E3, sz, 'filled', ...
 %         'MarkerFaceColor', phase_4_shifted_color', 'HandleVisibility', 'off')
 plot(phase_4_Re_theta_shifted, phase_4_cf_shifted * 1E3, 'Color', phase_4_shifted_color', ...
-     'linewidth', 1.5*linewidth, 'displayname', '$\varphi = \lambda/4$ (aligned)')
+     'linewidth', 1.5*linewidth, 'displayname', '$\varphi = \pi/2$ (aligned)')
 
 
 % Mark the starting point
@@ -752,11 +752,11 @@ addPanelLabelsFixed(fullfigure, [ax1, ax2, ax3], {'a', 'b' ,'c'}, 'FontSize', 10
 
 
 % Save figure
-% pause(3)
-% figure_name = 'HysteresisStitchExamples_BayoColors.pdf';
-% exportgraphics(fig, fullfile(figure_folder, 'Hysteresis', figure_name), 'Resolution', 600, 'ContentType', 'image');
-% close all
-% fprintf('Generated figure: %s\n\n', figure_name)
+pause(3)
+figure_name = 'Hysteresis_MATLABStitchExamples_BayoColors.pdf';
+exportgraphics(fig, fullfile(figure_folder, 'Hysteresis', figure_name), 'Resolution', 600, 'ContentType', 'image');
+close all
+fprintf('Generated figure: %s\n\n', figure_name)
 
 
 

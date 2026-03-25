@@ -385,7 +385,13 @@ end
 plot(nan, nan, 'color', 'white', 'displayname', '')
 
 % Dummy lines to get legend
-phase_names = {'$\varphi = 0$', '$\varphi = \lambda/4$', '$\varphi = \lambda/2$', '$\varphi = 3 \lambda / 4$'};
+% phase_names = {'$\varphi = 0$', '$\varphi = \lambda/4$', '$\varphi = \lambda/2$', '$\varphi = 3 \lambda / 4$'};
+
+phase_names = {'$\varphi = 0$',...
+                '$\varphi = \pi / 2$',...
+                '$\varphi = \pi$',...
+                '$\varphi = 3 \pi / 2$'};
+
 for phase = 1:4
     P = plot(nan, nan, 'linestyle', phase_line_styles{phase}, ...
          'linewidth', lw, 'color', 'black', 'DisplayName', phase_names{phase});
@@ -712,7 +718,7 @@ for s = 1:length(wind_speeds)
 
     %%% PLOT
     P = plot(normalized_difference_u, normalized_y, ...
-             'color', 'black', 'linestyle', line_styles{s}, 'linewidth', lw, 'displayname', caze);
+             'color', 'black', 'linestyle', '-', 'linewidth', lw, 'displayname', caze);
     P.Color(4) = 1.0;
         
 end
@@ -1025,7 +1031,7 @@ for s = 1:length(wind_speeds)
 
     %%% PLOT
     P = plot(corrected_normalized_u, normalized_y, ...
-             'color', 'black', 'linestyle', line_styles{s}, 'linewidth', lw, 'displayname', caze);
+             'color', 'black', 'linestyle', '-', 'linewidth', lw, 'displayname', caze);
     P.Color(4) = 1.0;
         
 end

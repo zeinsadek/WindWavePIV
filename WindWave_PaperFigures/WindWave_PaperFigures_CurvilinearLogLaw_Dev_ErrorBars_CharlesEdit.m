@@ -405,8 +405,12 @@ titleFontSize = 10;
 
 % What to plot
 wind_speed = 'WT6';
-phase_names = {'$\varphi = 0$', '$\varphi = \lambda / 4$', '$\varphi = \lambda / 2$', '$\varphi = 3 \lambda / 4$'};
-% wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
+% phase_names = {'$\varphi = 0$', '$\varphi = \lambda / 4$', '$\varphi = \lambda / 2$', '$\varphi = 3 \lambda / 4$'};
+phase_names  = {'$\varphi = 0$',...
+                '$\varphi = \pi / 2$',...
+                '$\varphi = \pi$',...
+                '$\varphi = 3 \pi / 2$'};
+
 wave_colors = {'#FE6202', '#DC2680', '#775EEF', '#648FFF'};
 lw = 1;
 nu = 1.46E-5;
@@ -575,7 +579,7 @@ end
 no_wave_caze = strcat(wind_speed, '_WV0_AGP');
 no_wave_friction_velocity = u_star.(no_wave_caze).raw;
 ax2 = nexttile([1,4]);
-b = bar({'$\varphi = 0$', '$\varphi = \lambda / 4$', '$\varphi = \lambda / 2$', '$\varphi = 3 \lambda / 4$'}, friction_velocity_bar_chart);
+b = bar(phase_names, friction_velocity_bar_chart);
 yline(no_wave_friction_velocity, '-', 'No Wave', 'Interpreter', 'latex', 'linewidth', 1, 'fontsize', 6)
 yticks(0:0.05:0.5)
 
@@ -617,7 +621,13 @@ titleFontSize = 10;
 
 % What to plot
 wind_speed = 'WT6';
-phase_names = {'$\varphi = 0$', '$\varphi = \lambda / 4$', '$\varphi = \lambda / 2$', '$\varphi = 3 \lambda / 4$'};
+% phase_names = {'$\varphi = 0$', '$\varphi = \lambda / 4$', '$\varphi = \lambda / 2$', '$\varphi = 3 \lambda / 4$'};
+
+phase_names  = {'$\varphi = 0$',...
+                '$\varphi = \pi / 2$',...
+                '$\varphi = \pi$',...
+                '$\varphi = 3 \pi / 2$'};
+
 % wave_colors = {'#FB3640', '#FFC324', '#09814A', '#1BE7FF'};
 wave_colors = {'#FE6202', '#DC2680', '#775EEF', '#648FFF'};
 lw = 1;
@@ -807,7 +817,7 @@ end
 no_wave_caze = strcat(wind_speed, '_WV0_AGP');
 no_wave_friction_velocity = u_star.(no_wave_caze).raw;
 ax2 = nexttile([1,4]);
-b = bar({'$\varphi = 0$', '$\varphi = \lambda / 4$', '$\varphi = \lambda / 2$', '$\varphi = 3 \lambda / 4$'}, friction_velocity_bar_chart);
+b = bar(phase_names, friction_velocity_bar_chart);
 yline(no_wave_friction_velocity, '-', 'No Wave', 'Interpreter', 'latex', 'linewidth', 1, 'fontsize', 6)
 yticks(0:0.05:0.5)
 
@@ -852,7 +862,11 @@ titleFontSize = 10;
 
 % What to plot
 wind_speed = 'WT6';
-phase_names = {'$\varphi = 0$', '$\varphi = \lambda / 4$', '$\varphi = \lambda / 2$', '$\varphi = 3 \lambda / 4$'};
+% phase_names = {'$\varphi = 0$', '$\varphi = \lambda / 4$', '$\varphi = \lambda / 2$', '$\varphi = 3 \lambda / 4$'};
+phase_names  = {'$\varphi = 0$',...
+                '$\varphi = \pi / 2$',...
+                '$\varphi = \pi$',...
+                '$\varphi = 3 \pi / 2$'};
 wave_colors = {'#FE6202', '#DC2680', '#775EEF', '#648FFF'};
 lw = 1;
 nu = 1.46E-5;
@@ -1188,8 +1202,11 @@ reordered_phases = [1,4,3,2];
 sz = 20;
 lw = 1.5;
 
-phase_axes_names = {'$0$', '$\lambda / 4$', '$\lambda / 2$', '$3 \lambda / 4$'};
-
+% phase_axes_names = {'$0$', '$\lambda / 4$', '$\lambda / 2$', '$3 \lambda / 4$'};
+phase_axes_names  = {'$0$',...
+                     '$\pi / 2$',...
+                     '$\pi$',...
+                     '$3 \pi / 2$'};
 
 
 
@@ -1330,14 +1347,14 @@ xticks(1:4)
 xlim([0.5, 6])
 ylim([-10 15])
 yticks(0:5:15)
-ylabel('$\Delta U_{\xi}^+$', 'interpreter', 'latex', 'fontsize', labelFontSize)
-xlabel('$\varphi$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+
 xticks([1 2 3 4 5])
-xticklabels([phase_axes_names, '$\lambda$'])
+xticklabels([phase_axes_names, '$2 \pi$'])
 tmp = gca;
 tmp.FontSize = tickFontSize;
 set(tmp, 'TickLabelInterpreter', 'latex', 'fontsize', tickFontSize)
-
+ylabel('$\Delta U_{\xi}^+$', 'interpreter', 'latex', 'fontsize', labelFontSize)
+xlabel('$\varphi$', 'interpreter', 'latex', 'fontsize', labelFontSize)
 
 
 % Save figure

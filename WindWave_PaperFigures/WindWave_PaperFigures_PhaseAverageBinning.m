@@ -5,8 +5,8 @@
 clc; clear; close all;
 addpath('/Users/zeinsadek/Desktop/Experiments/PIV/Processing/readimx-v2.1.8-osx');
 addpath('/Users/zeinsadek/Desktop/Experiments/PIV/Processing/WindWave/WindWave_Functions');
-experiment_log  = readcell('Offshore_Inflow_Log.xlsx');
-wave_parameters = readcell('Offshore_Waves.xlsx');
+% experiment_log  = readcell('');
+wave_parameters = readcell('/Users/zeinsadek/Desktop/Experiments/PIV/Processing/WindWave/Offshore_Waves.xlsx');
 
 % Offsets and shifts
 top_bound_value   = 205;       % relative to Y centered at still water
@@ -83,10 +83,15 @@ annotationFontSize = 6;
 
 
 % Titles
+% phase_titles = {'$\varphi = 0$',...
+%                 '$\varphi = \lambda / 4$',...
+%                 '$\varphi = \lambda / 2$',...
+%                 '$\varphi = 3 \lambda / 4$'};
+
 phase_titles = {'$\varphi = 0$',...
-                '$\varphi = \lambda / 4$',...
-                '$\varphi = \lambda / 2$',...
-                '$\varphi = 3 \lambda / 4$'};
+                '$\varphi = \pi / 2$',...
+                '$\varphi = \pi$',...
+                '$\varphi = 3 \pi / 2$'};
 
 
 % Plot
@@ -141,7 +146,7 @@ for p = 1:4
     
     axis equal
     xlim([0, range])
-    ylim([-20, 20])
+    ylim([-22, 22])
     yticks(-20:20:20)
     title(phase_titles{p}, 'interpreter', 'latex', 'FontSize', titleFontSize)
 
